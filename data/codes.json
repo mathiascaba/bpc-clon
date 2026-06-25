@@ -43,5 +43,13 @@
     "used": true,
     "deviceId": "DEV-2e5036e8-6c7e-41f9-b7f7-a01cf5b27b99",
     "activatedAt": "2026-06-25T15:48:12.459Z"
-  }
+  },
+  "_attempts": [
+    {
+      "code": "BCP-XXXX",
+      "deviceId": "DEV-TESTLOG2",
+      "reason": "Invalid code",
+      "time": "2026-06-25T15:55:06.502Z"
+    }
+  ]
 }
