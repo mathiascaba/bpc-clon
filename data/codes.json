@@ -50,6 +50,12 @@
       "deviceId": "DEV-TESTLOG2",
       "reason": "Invalid code",
       "time": "2026-06-25T15:55:06.502Z"
+    },
+    {
+      "code": "BCP-6D871FAF",
+      "deviceId": "DEV-REUSE",
+      "reason": "Code already used",
+      "time": "2026-06-25T15:55:19.955Z"
     }
   ]
 }
