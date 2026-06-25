@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Banca Móvil</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Quitar caja, bordes y sombras de Mis Productos */
+        .card-product {
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding-left: 0 !important; /* Opcional: por si quieres pegarlo más a la izquierda */
+            padding-right: 0 !important; 
+        }
+        /* Quitar bordes de las esquinas del contenedor blanco */
+        .main-card {
+            border-radius: 0 !important;
+        }
+
+        /* NUEVO: Ajuste del fondo azul de la cabecera */
+        .top-header {
+            background-color: #002a8d !important;
+            padding: 20px 20px 50px 20px !important;
+            color: white !important;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .greeting {
+            margin-top: 15px;
+            font-size: 22px;
+        }
+
+        /* NUEVO: Efecto de arrastrar tipo catálogo magnético */
+        #carrusel-destacados {
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Oculta barra en Firefox */
+        }
+        #carrusel-destacados::-webkit-scrollbar {
+            display: none; /* Oculta barra en Chrome/Safari */
+        }
+        .highlight-card {
+            scroll-snap-align: start;
+        }
+
+        .ops-full-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px 10px;
+            padding: 25px 15px;
+        }
+        .op-grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            font-size: 11px;
+            color: #555;
+            text-decoration: none;
+            line-height: 1.2;
+            cursor: pointer;
+        }
+        .op-grid-icon-box {
+            width: 55px;
+            height: 55px;
+            background-color: #f4f6f9; /* Color de fondo sutil parecido a la app */
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .op-grid-icon-box img {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            /* Filtro para pintar cualquier icono (webp o svg) de color azul oscuro */
+            filter: brightness(0) saturate(100%) invert(13%) sepia(90%) saturate(4155%) hue-rotate(227deg) brightness(85%) contrast(102%);
+        }
+        .blue-top-header {
+            background-color: #002a8d; 
+            color: white; 
+            padding: 20px; 
+            font-size: 20px; 
+            font-weight: 500;
+        }
+
+        /* Efectos de color para el Menú Inferior (Inicio y Operaciones) */
+        
+        /* 1. ESTADO INACTIVO (Color Gris #898E8F) */
+        #btn-inicio:not(.active) .icon,
+        #btn-operaciones:not(.active) .icon {
+            filter: brightness(0) saturate(100%) invert(64%) sepia(4%) saturate(702%) hue-rotate(143deg) brightness(89%) contrast(85%) !important;
+        }
+        #btn-inicio:not(.active) .text,
+        #btn-operaciones:not(.active) .text {
+            color: #898E8F !important;
+        }
+
+        /* 2. ESTADO ACTIVO (Color Azul #072799) */
+        #btn-inicio.active .icon,
+        #btn-operaciones.active .icon {
+            filter: brightness(0) saturate(100%) invert(13%) sepia(90%) saturate(4155%) hue-rotate(227deg) brightness(85%) contrast(102%) !important;
+        }
+        #btn-inicio.active .text,
+        #btn-operaciones.active .text {
+            color: #072799 !important;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-wrapper">
+        <div class="mobile-container">
+            
+            <div id="vista-inicio">
+                <header class="top-header">
+                    <div class="header-row">
+                        <div class="logo-container">
+                            <img src="img/logo-bcp.svg" alt="BCP" class="logo-img">
+                        </div>
+                        
+                        <div class="bell-icon">
+                            <img src="img/campana-icon.svg" alt="Notificaciones">
+                        </div>
+                    </div>
+                    <h1 class="greeting">Hola, </h1>
+                </header>
+
+                <main class="main-card">
+                    
+                    <section class="products-section">
+                        <div class="section-title">
+                            <h2>Mis productos</h2>
+                            <div class="actions">
+                                <img src="img/ojo-abierto-g-icon.svg" alt="Ver Saldo" class="action-icon" id="eye-icon" onclick="toggleBalance()">
+                                <img src="img/lapiz-in.svg" alt="Editar" class="action-icon">
+                            </div>
+                        </div>
+
+                        <div class="card-product" onclick="window.location.href='cuentas.html'" style="cursor: pointer;">
+                            <div class="product-icon-col">
+                                <img src="img/lg_favicon_light.svg" alt="Cuenta" class="account-img-icon"> 
+                            </div>
+                            <div class="product-info-col">
+                                <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                                    <p class="product-label" style="color:#2B3B4E;">Cuenta Digital Soles</p>
+                                    <p class="balance" id="balance-text" style="font-size:16px; font-weight:500; color:#2B3B4E;">S/ *****</p>
+                                </div>
+                                <p class="product-number" style="color:#2B3B4E;">****7908</p>
+                            </div>
+                            <div class="product-arrow-col">›</div>
+                        </div>
+
+                        <div class="ver-todos">
+                            <a href="#">Ver todos</a>
+                        </div>
+                    </section>
+
+                    <section class="operations-grid">
+                        <a href="yapearcel.html" class="op-item" style="text-decoration: none; color: inherit;">
+                            <div class="icon-circle">
+                                <img src="img/yapear-a-celular.svg" alt="" class="op-img">
+                            </div>
+                            <p>Yapear a<br>celular</p>
+                        </a>
+
+                        <a href="escanear.html" class="op-item" style="text-decoration: none; color: inherit;">
+                            <div class="icon-circle">
+                                <img src="img/qricono.svg" alt="" class="op-img">
+                            </div>
+                            <p>Pagar con<br>QR</p>
+                        </a>
+
+                        <a href="servicio.html" class="op-item" style="text-decoration: none; color: inherit;">
+                            <div class="icon-circle">
+                                <img src="img/pagar-servicios.svg" alt="" class="op-img">
+                            </div>
+                            <p>Pagar<br>servicios</p>
+                        </a>
+
+                        <a href="trans.html" class="op-item" style="text-decoration: none; color: inherit;">
+                            <div class="icon-circle">
+                                <img src="img/transf-dinero.svg" alt="" class="op-img">
+                            </div>
+                            <p>Transferir<br>dinero</p>
+                        </a>
+                    </section>
+
+                    <section class="highlights-section">
+                        <h3>Lo más destacado</h3>
+                        <div class="scroll-container" id="carrusel-destacados">
+                            <div class="highlight-card">
+                                <div class="card-icon">
+                                    <img src="img/highlight-1.jpg" alt="Icono" class="highlight-icon-img">
+                                </div>
+                                <div class="card-text">
+                                    <h4>Descubre Qore</h4>
+                                    <p>Tu nueva zona de beneficios</p>
+                                </div>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="card-icon">
+                                    <img src="img/destacado-2.jpg" alt="Icono" class="highlight-icon-img">
+                                </div>
+                                <div class="card-text">
+                                    <h4>Cambia soles y dólares</h4>
+                                    <p>¡Con el mejor tipo de cambio!</p>
+                                </div>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="card-icon">
+                                    <img src="img/destacado-3.jpg" alt="Icono" class="highlight-icon-img">
+                                </div>
+                                <div class="card-text">
+                                    <h4>Seguro de Tarjetas</h4>
+                                    <p>Protégete contra robos</p>
+                                </div>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="card-icon">
+                                    <img src="img/destacado-4.jpg" alt="Icono" class="highlight-icon-img">
+                                </div>
+                                <div class="card-text">
+                                    <h4>Actualiza tus datos</h4>
+                                    <p>Mejora tu nivel de seguridad</p>
+                                </div>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="card-icon">
+                                    <img src="img/destacado-5.jpg" alt="Icono" class="highlight-icon-img">
+                                </div>
+                                <div class="card-text">
+                                    <h4>Adelanto de Sueldo</h4>
+                                    <p>¡Obtenlo al instante!</p>
+                                </div>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="card-icon">
+                                    <img src="img/destacado-6.jpg" alt="Icono" class="highlight-icon-img">
+                                </div>
+                                <div class="card-text">
+                                    <h4>Tarjeta de Crédito</h4>
+                                    <p>Solicítala 100% online</p>
+                                </div>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="card-icon">
+                                    <img src="img/destacado-7.jpg" alt="Icono" class="highlight-icon-img">
+                                </div>
+                                <div class="card-text">
+                                    <h4>Dónaciones</h4>
+                                    <p>Sé parte del cambio</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dots-container">
+                            <span class="dot active"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                    </section>
+
+                    <section class="promotions-section">
+                        <h3>Promociones exclusivas</h3>
+                        <div class="scroll-container banner-scroll">
+                            
+                            <div class="promo-card">
+                                <div class="promo-image-box">
+                                    <img src="img/promo-1.jpg" alt="Seguro" class="promo-img">
+                                </div>
+                                <div class="promo-content">
+                                    <h4>Protege tus cuenta y tarjetas BCP por S/ 12.99 al mes</h4>
+                                    <p>Y obtén la máxima tranquilidad en cada transacción</p>
+                                </div>
+                            </div>
+
+                            <div class="promo-card">
+                                <div class="promo-image-box">
+                                    <img src="img/promo-2.jpg" alt="Inversión" class="promo-img">
+                                </div>
+                                <div class="promo-content">
+                                    <h4>Haz crecer tu dinero de forma segura con Depósito a Plazo</h4>
+                                    <p>Invierte tus ahorros y obtén intereses fijos</p>
+                                </div>
+                            </div>
+
+                            <div class="promo-card">
+                                <div class="promo-image-box">
+                                    <img src="img/promo-3.jpg" alt="SOAT" class="promo-img">
+                                </div>
+                                <div class="promo-content">
+                                    <h4>Consigue tu SOAT de manera fácil y segura</h4>
+                                    <p>Y aprovecha los descuentos en establecimientos afiliados</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                    
+                    <div style="height: 90px;"></div>
+                </main>
+            </div>
+
+            <div id="vista-operaciones" style="display: none; height: 100%; background: white; overflow-y: auto;">
+                <div class="blue-top-header">
+                    Operaciones
+                </div>
+                
+                <div class="ops-full-grid">
+                    <a href="trans.html" class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/arrows.svg" alt="">
+                        </div>
+                        <p>Transferir<br>dinero</p>
+                    </a>
+                    <a href="servicio.html" class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/aqua.webp" alt="">
+                        </div>
+                        <p>Pagar<br>Servicios</p>
+                    </a>
+                    <a href="yapearcel.html" class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/send.svg" alt="">
+                        </div>
+                        <p>Yapear<br>celular</p>
+                    </a>
+
+                    <a href="escanear.html" class="op-grid-item" style="text-decoration: none; color: inherit;">
+                        <div class="op-grid-icon-box">
+                            <img src="img/qr.webp" alt="">
+                        </div>
+                        <p>Pagar con QR</p>
+                    </a>
+
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/change-dolar.svg" alt="">
+                        </div>
+                        <p>Cambia soles<br>y dólares</p>
+                    </div>
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/rechargue.svg" alt="">
+                        </div>
+                        <p>Recargar<br>celular</p>
+                    </div>
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/hearth.svg" alt="">
+                        </div>
+                        <p>Realizar<br>donaciones</p>
+                    </div>
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/pos.svg" alt="">
+                        </div>
+                        <p>Retirar sin<br>tarjeta</p>
+                    </div>
+
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/card.svg" alt="">
+                        </div>
+                        <p>Pagar<br>tarjetas</p>
+                    </div>
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/credit.svg" alt="">
+                        </div>
+                        <p>Pagar<br>créditos</p>
+                    </div>
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/dispod.svg" alt="">
+                        </div>
+                        <p>Disponer<br>efectivo</p>
+                    </div>
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/warda.svg" alt="">
+                        </div>
+                        <p>Wardaditos</p>
+                    </div>
+
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/plazo-fijo.svg" alt="">
+                        </div>
+                        <p>Depósito<br>plazo fijo</p>
+                    </div>
+                    <div class="op-grid-item">
+                        <div class="op-grid-icon-box">
+                            <img src="img/password.svg" alt="">
+                        </div>
+                        <p>Cambiar<br>Clave PIN</p>
+                    </div>
+                </div>
+                <div style="height: 90px;"></div> </div>
+
+            <footer class="bottom-menu">
+                <div class="menu-item active" id="btn-inicio" onclick="mostrarInicio()">
+                    <img src="img/inicio-flash.svg" alt="Inicio" class="icon">
+                    <span class="text">Inicio</span>
+                </div>
+                <div class="menu-item" id="btn-operaciones" onclick="mostrarOperaciones()">
+                    <img src="img/operaciones-flash.svg" alt="Operaciones" class="icon">
+                    <span class="text">Operaciones</span>
+                </div>
+                <div class="menu-item">
+                    <img src="img/descubre-flash.svg" alt="Descubre" class="icon">
+                    <span class="text">Descubre</span>
+                </div>
+                <a href="opciones.html" class="menu-item" style="text-decoration: none;">
+                    <img src="img/configuracion-flash.svg" alt="Configuración" class="icon">
+                    <span class="text">Configuración</span>
+                </a>
+            </footer>
+
+        </div>
+    </div>
+
+<script>
+        let currentBalance = "1,200.00"; // Valor por defecto
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Cargar Nombre
+            const savedName = localStorage.getItem("userName");
+            if (savedName) {
+                document.querySelector(".greeting").innerHTML = "Hola, <span style='color: #ffffff; font-weight: 500;'>" + savedName + "</span>";
+            }
+
+            // 2. Cargar Saldo
+            const savedBalance = localStorage.getItem("userBalance");
+            if (savedBalance) {
+                currentBalance = parseFloat(savedBalance).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+
+            // --- NUEVO: ANIMACIÓN DE CARRUSEL CON CAMBIO DE BOLITAS ---
+            const carruselDestacados = document.getElementById('carrusel-destacados');
+            const dots = document.querySelectorAll('.dots-container .dot');
+            
+            if (carruselDestacados && dots.length > 0) {
+                let autoSlide = setInterval(moverCarrusel, 3500); // Avanza cada 3.5 segundos
+
+                function moverCarrusel() {
+                    const maxScroll = carruselDestacados.scrollWidth - carruselDestacados.clientWidth;
+                    
+                    if (carruselDestacados.scrollLeft >= (maxScroll - 10)) {
+                        carruselDestacados.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        const card = carruselDestacados.querySelector('.highlight-card');
+                        const salto = card ? card.offsetWidth + 15 : 200; 
+                        carruselDestacados.scrollBy({ left: salto, behavior: 'smooth' });
+                    }
+                }
+
+                // Escuchar el evento "scroll" (arrastrar) para ir pintando las bolitas
+                carruselDestacados.addEventListener('scroll', () => {
+                    const card = carruselDestacados.querySelector('.highlight-card');
+                    const cardWidth = card ? card.offsetWidth + 15 : 200;
+                    
+                    // Calculamos qué tarjeta estamos viendo
+                    let indexActivo = Math.round(carruselDestacados.scrollLeft / cardWidth);
+                    
+                    if (indexActivo >= dots.length) indexActivo = dots.length - 1;
+
+                    // Reiniciamos todas las bolitas y encendemos la correcta
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    if(dots[indexActivo]) dots[indexActivo].classList.add('active');
+                });
+
+                // Pausar si el usuario lo arrastra manualmente
+                carruselDestacados.addEventListener('touchstart', () => clearInterval(autoSlide));
+                
+                carruselDestacados.addEventListener('touchend', () => {
+                    clearInterval(autoSlide);
+                    autoSlide = setInterval(moverCarrusel, 3500);
+                });
+            }
+        });
+
+        function toggleBalance() {
+            var eye = document.getElementById('eye-icon');
+            var balance = document.getElementById('balance-text');
+            
+            if (eye.src.includes('ojo-abierto-g-icon.svg')) {
+                eye.src = 'img/ojo-cerrado-g-icon.svg';
+                balance.innerText = 'S/ ' + currentBalance;
+                balance.style.fontWeight = '500';
+            } else {
+                eye.src = 'img/ojo-abierto-g-icon.svg';
+                balance.innerText = 'S/ *****';
+                balance.style.fontWeight = '400';
+            }
+        }
+
+        function mostrarInicio() {
+            document.getElementById('vista-inicio').style.display = 'block';
+            document.getElementById('vista-operaciones').style.display = 'none';
+            
+            document.getElementById('btn-inicio').classList.add('active');
+            document.getElementById('btn-operaciones').classList.remove('active');
+        }
+
+        function mostrarOperaciones() {
+            document.getElementById('vista-inicio').style.display = 'none';
+            document.getElementById('vista-operaciones').style.display = 'block';
+            
+            document.getElementById('btn-inicio').classList.remove('active');
+            document.getElementById('btn-operaciones').classList.add('active');
+        }
+    </script>
+</body>
+</html>

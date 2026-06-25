@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Escanear QR</title>
+    <link rel="icon" href="img/app-icon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: black;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- CÁMARA DE FONDO --- */
+        #camera-stream {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            object-fit: cover; 
+            z-index: 0;
+        }
+
+        /* --- CAPA SUPERPUESTA (UI) --- */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none; /* Para no bloquear la cámara accidentalmente */
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 20px;
+            pointer-events: all;
+        }
+        .header-title {
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .close-btn {
+            color: white;
+            font-size: 24px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* ÁREA DE ESCANEO (El Cuadrado) */
+        .scan-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* EL TRUCO MAGICO: Un cuadrado transparente con una sombra gigante que oscurece el resto */
+        .scan-frame {
+            width: 250px;
+            height: 250px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.65); /* Oscurece el exterior */
+            position: relative;
+        }
+
+        /* BOTÓN LINTERNA */
+        .flashlight-container {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: all;
+            cursor: pointer;
+            z-index: 20;
+        }
+        .flash-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .flash-icon i {
+            font-size: 12px;
+        }
+        .flash-text {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        /* BOTÓN INFERIOR (Galería) */
+        .footer {
+            padding: 20px;
+            padding-bottom: max(60px, env(safe-area-inset-bottom));
+            pointer-events: all;
+        }
+        .gallery-btn {
+            width: 100%;
+            background-color: transparent;
+            color: white;
+            border: 1.5px solid white;
+            border-radius: 30px;
+            padding: 16px 0;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            display: block;
+        }
+        .gallery-btn:active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #fileInput { display: none; }
+
+        /* --- PANTALLA DE CARGA --- */
+        .loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85); z-index: 3000;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .loader-overlay.show { opacity: 1; pointer-events: all; }
+
+        .loader-card {
+            background: transparent;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column;
+        }
+        .custom-spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #ff7800; border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        .loader-msg { font-size: 16px; font-weight: 500; color: white; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <video id="camera-stream" autoplay playsinline muted></video>
+
+    <div class="ui-layer">
+        
+        <div class="header">
+            <div class="header-title">Escanear código QR</div>
+            <a href="inicio.html" class="close-btn"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+
+        <div class="scan-area">
+            <div class="scan-frame"></div>
+            
+            <div class="flashlight-container" id="btnFlash">
+                <div class="flash-icon"><i class="fa-solid fa-power-off"></i></div>
+                <div class="flash-text">Encender la linterna</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <button class="gallery-btn" onclick="document.getElementById('fileInput').click()">Buscar QR en mis fotos</button>
+        </div>
+
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*">
+    <div class="loader-overlay" id="mainLoader">
+        <div class="loader-card">
+            <div class="custom-spinner"></div>
+            <div class="loader-msg" id="loaderText">Procesando...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Variables de UI
+        const fileInput = document.getElementById('fileInput');
+        const loader = document.getElementById('mainLoader');
+        const loaderText = document.getElementById('loaderText');
+        const video = document.getElementById('camera-stream');
+
+        const canvasElement = document.createElement('canvas');
+        const canvas = canvasElement.getContext('2d');
+        let escaneando = true;
+        let streamTrack = null;
+
+        // INICIAR CÁMARA
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(stream => { 
+                streamTrack = stream.getVideoTracks()[0];
+                video.srcObject = stream;
+                video.setAttribute("playsinline", true); 
+                video.play();
+                requestAnimationFrame(escanearVideo); 
+            })
+            .catch(err => {
+                alert("No se pudo acceder a la cámara. Revisa los permisos.");
+            });
+        }
+
+        // BUCLE DE ESCANEO
+        function escanearVideo() {
+            if (!escaneando) return;
+
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                    escaneando = false; 
+                    video.pause(); 
+                    buscarQR(code.data);
+                }
+            }
+            if (escaneando) {
+                requestAnimationFrame(escanearVideo);
+            }
+        }
+
+        // LÓGICA DE SUBIR IMAGEN DESDE GALERÍA
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            escaneando = false; 
+            loaderText.textContent = "Analizando imagen...";
+            loader.classList.add('show');
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvasGaleria = document.createElement('canvas');
+                    const contextGaleria = canvasGaleria.getContext('2d');
+                    canvasGaleria.width = img.width;
+                    canvasGaleria.height = img.height;
+                    contextGaleria.drawImage(img, 0, 0, img.width, img.height);
+                    
+                    const imageData = contextGaleria.getImageData(0, 0, canvasGaleria.width, canvasGaleria.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        buscarQR(code.data);
+                    } else {
+                        alert("No se encontró ningún QR válido en la imagen.");
+                        loader.classList.remove('show');
+                        escaneando = true;
+                        requestAnimationFrame(escanearVideo);
+                    }
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // PROCESAR QR (sin servidor)
+        function buscarQR(qrCodeData) {
+            loaderText.textContent = "Procesando QR...";
+            loader.classList.add('show');
+            
+            const qrIdLimpio = qrCodeData.trim();
+            localStorage.setItem('v_cuenta', qrIdLimpio);
+            localStorage.setItem('v_nombre_destino', "");
+            localStorage.removeItem('v_destino_qr');
+            
+            window.location.href = 'montobcp.html';
+        }
+
+        // LINTERNA (Solo funciona en algunos navegadores/dispositivos modernos)
+        const btnFlash = document.getElementById('btnFlash');
+        let flashActivo = false;
+        btnFlash.addEventListener('click', async () => {
+            if (streamTrack && typeof streamTrack.getCapabilities === 'function') {
+                const capabilities = streamTrack.getCapabilities();
+                if (capabilities.torch) {
+                    flashActivo = !flashActivo;
+                    try {
+                        await streamTrack.applyConstraints({
+                            advanced: [{ torch: flashActivo }]
+                        });
+                    } catch (e) {
+                        console.log("Linterna no soportada", e);
+                    }
+                } else {
+                    alert("Tu dispositivo no soporta encender la linterna desde el navegador.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>

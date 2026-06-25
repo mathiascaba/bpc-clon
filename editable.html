@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voucher Editable</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #fff; display: flex; flex-direction: column; align-items: center; }
+        h2 { text-align: center; font-size: 24px; font-weight: 600; margin-bottom: 35px; color: #000; }
+        .form-container { width: 100%; max-width: 400px; }
+        .input-group { margin-bottom: 25px; display: flex; flex-direction: column; }
+        label { font-size: 18px; color: #000; margin-bottom: 8px; font-weight: 500; }
+        input { border: none; border-bottom: 1px solid #ccc; padding: 10px 0; font-size: 20px; width: 100%; outline: none; color: #333; transition: border-color 0.3s; }
+        input:focus { border-bottom: 2px solid #ff7e00; }
+        ::placeholder { color: #b0b0b0; font-size: 18px; }
+        .btn-siguiente { background-color: #ff7e00; color: white; border: none; border-radius: 30px; padding: 15px 0; width: 100%; font-size: 20px; font-weight: 600; cursor: pointer; margin-top: 15px; }
+        .btn-siguiente:hover { background-color: #e66e00; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Voucher editable</h2>
+        
+        <div class="input-group">
+            <label>Nombre</label>
+            <input type="text" id="nombre" placeholder="Ej: Maikol Esleiter">
+        </div>
+
+        <div class="input-group">
+            <label>Cuenta</label>
+            <input type="text" id="cuenta" 
+                   inputmode="numeric" 
+                   maxlength="4" 
+                   minlength="4" 
+                   placeholder="**** 3131" 
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+        </div>
+
+        <div class="input-group">
+            <label>Monto</label>
+            <input type="text" id="monto" 
+                   inputmode="decimal" 
+                   maxlength="10" 
+                   placeholder="0.00" 
+                   oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
+        </div>
+
+        <div class="input-group">
+            <label>Fecha</label>
+            <input type="text" id="fecha" placeholder="Martes, 31 Diciembre 2025 - 01:01 p.m.">
+        </div>
+
+        <button class="btn-siguiente" onclick="guardarYRedirigir()">Siguiente</button>
+    </div>
+
+    <script>
+        function guardarYRedirigir() {
+            const nombre = document.getElementById('nombre').value || "Maikol Esleiter";
+            const cuenta = document.getElementById('cuenta').value || "3131"; // Valor por defecto si está vacío
+            let monto = document.getElementById('monto').value || "12.00";
+            const fecha = document.getElementById('fecha').value || document.getElementById('fecha').placeholder;
+
+            localStorage.setItem('v_nombre', nombre);
+            localStorage.setItem('v_cuenta', cuenta);
+            localStorage.setItem('v_monto', monto);
+            localStorage.setItem('v_fecha', fecha);
+
+            window.location.href = 'exito_editable.html';
+        }
+    </script>
+</body>
+</html>

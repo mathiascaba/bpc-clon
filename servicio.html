@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pagar servicios</title>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; outline: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #fff; color: #333; display: flex; flex-direction: column; height: 100vh; }
+
+        /* HEADER */
+        .header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background-color: #fff; border-bottom: 1px solid #e0e0e0; }
+        .header-title { font-size: 24px; font-weight: 400; color: #444; flex-grow: 1; margin-left: 15px; }
+        .icon-btn { background: none; border: none; cursor: pointer; padding: 5px; display: flex; align-items: center; }
+        .icon-btn svg { width: 30px; height: 30px; fill: #444; }
+
+        /* CONTENIDO */
+        .main-content { padding: 20px 25px; flex-grow: 1; display: flex; flex-direction: column; }
+
+        /* PANTALLA 1 */
+        #screen-1 { display: flex; flex-direction: column; flex-grow: 1; }
+        .input-container { border: 1px solid #ccc; border-radius: 8px; padding: 14px 15px; margin-top: 10px; display: flex; align-items: center; }
+        .input-field { width: 100%; border: none; outline: none; font-size: 18px; color: #333; font-family: inherit; }
+        .input-field::placeholder { color: #666; font-weight: 400; font-size: 18px; }
+
+        /* PANTALLA 2 */
+        #screen-2 { display: none; flex-direction: column; flex-grow: 1; align-items: center; }
+        .company-info { text-align: center; margin-bottom: 30px; width: 100%; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; }
+        .avatar-circle { width: 55px; height: 55px; background-color: #4a90e2; color: white; border-radius: 50%; font-size: 24px; font-weight: 500; display: flex; justify-content: center; align-items: center; margin: 0 auto 10px auto; text-transform: uppercase; }
+        .company-name { font-size: 20px; font-weight: 600; color: #000; margin-bottom: 5px; }
+        .company-type { font-size: 16px; color: #666; }
+        .service-input-container { width: 100%; margin-bottom: 20px; }
+        .service-input { width: 100%; padding: 16px; border: 1px solid #e0e0e0; background-color: #f9f9f9; border-radius: 8px; font-size: 18px; font-family: inherit; box-sizing: border-box; color: #333; outline: none; }
+        .service-input::placeholder { color: #999; font-weight: 400; }
+
+        /* BOTÓN */
+        .footer-container { margin-top: auto; padding-bottom: 25px; text-align: center; }
+        .btn-siguiente { width: 100%; background-color: #ff7800; color: white; border: none; border-radius: 40px; padding: 18px 0; font-size: 20px; font-weight: 500; cursor: pointer; }
+        .btn-siguiente:active { background-color: #e06900; }
+
+        /* CARGA BLANCA */
+        #white-loader-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%;             background-color: #002a80; z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .loader-container { position: relative; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; }
+        .loader-icon { width: 40px; height: 40px; z-index: 2; }
+        .spinner-ring { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; border: 4px solid transparent; border-top-color: #ff7800; animation: spin 1s linear infinite; z-index: 1; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="white-loader-screen">
+        <div class="loader-container">
+            <div class="spinner-ring"></div>
+            <img src="img/lg_favicon_white.svg" alt="Cargando" class="loader-icon">
+        </div>
+    </div>
+
+    <header class="header">
+        <button class="icon-btn" onclick="window.history.back()">
+            <svg viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+        </button>
+        <div class="header-title">Pagar servicios</div>
+        <button class="icon-btn" onclick="window.location.href='inicio.html'">
+            <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+        </button>
+    </header>
+
+    <div class="main-content">
+        <div id="screen-1">
+            <div class="input-container">
+                <input type="text" id="searchInput" class="input-field" placeholder="Buscar empresa">
+            </div>
+            <div class="footer-container">
+                <button class="btn-siguiente" onclick="mostrarPantalla2()">Siguiente</button>
+            </div>
+        </div>
+
+        <div id="screen-2">
+            <div class="company-info">
+                <div class="avatar-circle" id="companyAvatar">P</div>
+                <div class="company-name" id="companyNameDisplay">PagoEfectivo</div>
+                <div class="company-type">Empresa</div>
+            </div>
+
+            <div class="service-input-container">
+                <input type="text" id="serviceInput" class="service-input" placeholder="Ingresar servicio">
+            </div>
+            <div class="service-input-container">
+                <input type="text" id="numberInput" class="service-input" placeholder="Número">
+            </div>
+
+            <div class="footer-container" style="width: 100%;">
+                <button class="btn-siguiente" onclick="irAConfirmacion()">Siguiente</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedCompanyName = "PagoEfectivo"; 
+
+        function mostrarPantalla2() {
+            const nombreInput = document.getElementById('searchInput').value.trim();
+            if (nombreInput !== "") {
+                selectedCompanyName = nombreInput;
+                document.getElementById('companyNameDisplay').innerText = selectedCompanyName;
+                document.getElementById('companyAvatar').innerText = selectedCompanyName.charAt(0);
+            }
+            document.getElementById('screen-1').style.display = 'none';
+            document.getElementById('screen-2').style.display = 'flex';
+        }
+
+        function irAConfirmacion() {
+            // 1. Capturamos AMBOS datos
+            const serviceValue = document.getElementById('serviceInput').value;
+            const numberValue = document.getElementById('numberInput').value; 
+
+            // 2. Guardamos en localStorage
+            localStorage.setItem('v_empresa_nombre', selectedCompanyName);
+            localStorage.setItem('v_servicio_input', serviceValue); // Lo que escribió en "Ingresar servicio"
+            localStorage.setItem('v_numero_input', numberValue);   // Lo que escribió en "Número"
+
+            // 3. Animación
+            document.getElementById('white-loader-screen').style.display = 'flex';
+            setTimeout(function() {
+                window.location.href = 'comfir_serv.html';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

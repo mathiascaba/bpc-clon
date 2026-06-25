@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Operación exitosa</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        * { -webkit-tap-highlight-color: transparent; outline: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #002a80; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        .container { width: 100%; max-width: 450px; background-color: #fff; text-align: center; padding: 40px 25px; margin-top: 3px; border-top-left-radius: 28px; border-top-right-radius: 28px; min-height: calc(100vh - 12px); box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+
+        /* ANIMACIÓN CHECK (Igual a la original) */
+        @keyframes dibujar-trazo { to { stroke-dashoffset: 0; } }
+        .check-icon svg { width: 75px; height: 75px; fill: none; stroke: #ff7e00; stroke-width: 2.5; margin-bottom: 20px; }
+        .circle-path { stroke-dasharray: 150; stroke-dashoffset: 150; transform: rotate(90deg) scaleX(-1); transform-origin: center; animation: dibujar-trazo 1s ease-out forwards; }
+        .check-path { stroke-dasharray: 50; stroke-dashoffset: 50; animation: dibujar-trazo 0.6s 0.75s ease-out forwards; }
+
+        h2 { font-size: 24px; font-weight: 700; margin: 0 0 10px 0; color: #000; }
+        .monto-grande { font-size: 54px; font-weight: 500; color: #002a80; margin: 0; line-height: 1.1; }
+        .fecha-sub { color: #888; font-size: 18px; margin-top: 12px; margin-bottom: 35px; }
+        .acciones { display: flex; justify-content: center; gap: 50px; margin-bottom: 45px; }
+        .accion-btn { display: flex; align-items: center; gap: 8px; color: #ff7e00; font-weight: 600; font-size: 17px; cursor: pointer; text-decoration: none; }
+        .accion-btn img { width: 22px; height: 22px; }
+        
+        .detalles-lista { width: 100%; text-align: left; margin-bottom: 10px; }
+        .fila { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid #b0b0b0; }
+        .fila:last-child { border-bottom: none; }
+        .label { font-size: 17px; color: #000; font-weight: 400; width: 40%; }
+        .valor { text-align: right; font-size: 17px; color: #000; width: 60%; }
+        .valor strong { display: block; font-weight: 700; font-size: 18px; margin-bottom: 3px; }
+        .valor span { display: block; color: #666; font-size: 15px; }
+
+        .separador-banner { width: 100%; height: 1px; background-color: #b0b0b0; margin-bottom: 30px; }
+        .banner { width: 100%; background-color: #0039a6; border-radius: 10px; padding: 12px; display: flex; align-items: center; position: relative; margin: 0 0 35px 0; color: white; box-sizing: border-box; overflow: hidden; height: 100px; }
+        .banner-img { position: absolute; left: 0; bottom: -5px; height: 100px; width: auto; }
+        .banner-text { margin-left: 85px; text-align: left; }
+        .banner-text h4 { margin: 0; font-size: 18px; font-weight: 700; }
+        .banner-text p { margin: 3px 0 0 0; font-size: 15px; opacity: 0.9; }
+        
+        .btn-otra { background-color: #ff7e00; color: white; border: none; border-radius: 35px; padding: 15px 0; width: 85%; display: block; margin: 0 auto 20px auto; font-size: 17px; font-weight: 500; cursor: pointer; }
+        .link-inicio { color: #ff7e00; text-decoration: none; font-size: 17px; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="check-icon">
+            <svg viewBox="0 0 50 50">
+                <circle class="circle-path" cx="25" cy="25" r="23" stroke="#ff7e00" stroke-width="2" fill="none"/>
+                <path class="check-path" d="M15 25 L22 32 L35 18" stroke="#ff7e00" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+
+        <h2>¡Operación exitosa!</h2>
+        <div class="monto-grande" id="displayMonto">S/ 0.00</div>
+        <div class="fecha-sub" id="displayFecha">--</div>
+
+        <div class="acciones">
+            <div class="accion-btn" onclick="descargarVoucher()"><img src="img/descargar-icon.svg" alt="Descargar"> Descargar</div>
+            <div class="accion-btn" onclick="compartirVoucher()"><img src="img/compartir-icon.svg" alt="Compartir"> Compartir</div>
+        </div>
+
+        <div class="detalles-lista">
+            <div class="fila">
+                <div class="label">Enviado a</div>
+                <div class="valor">
+                    <strong id="displayEmpresa">NombreEmpresa</strong>
+                    <span id="displayServicio">NombreServicio</span>
+                    <span id="displayNumero">Numero</span>
+                </div>
+            </div>
+            <div class="fila">
+                <div class="label">Desde</div>
+                <div class="valor">
+                    <strong>Cuenta Digital Soles</strong>
+                    <span>7809</span>
+                </div>
+            </div>
+            <div class="fila" style="border-bottom: none;"> 
+                <div class="label">Número de operación</div>
+                <div class="valor">
+                    <strong id="numOperacion">0000000</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="separador-banner"></div>
+
+        <div class="banner">
+            <img src="img/super-des.svg" alt="Personaje" class="banner-img">
+            <div class="banner-text">
+                <h4>Protege tus tarjetas</h4>
+                <p>Por solo S/ 13.99 al mes inc. IGV</p>
+            </div>
+        </div>
+
+        <button class="btn-otra" onclick="window.location.href='servicio.html'">Realizar otro servicio</button>
+        <a href="inicio.html" class="link-inicio">Ir al inicio</a>
+    </div>
+
+    <script>
+        // 1. RECUPERAR DATOS DEL LOCALSTORAGE
+        const empresa = localStorage.getItem('v_empresa_nombre') || "Empresa";
+        const servicioInput = localStorage.getItem('v_servicio_input') || "";
+        const numeroInput = localStorage.getItem('v_numero_input') || "";
+        let monto = localStorage.getItem('v_monto_servicio');
+        
+        // 2. FORMATEAR MONTO
+        if(monto) {
+            if (!isNaN(monto)) { monto = parseFloat(monto).toFixed(2); }
+        } else { monto = "0.00"; }
+
+        // 3. GENERAR NÚMERO DE OPERACIÓN ALEATORIO Y FECHA DINÁMICA
+        const randomOp = Math.floor(10000000 + Math.random() * 90000000);
+
+        // Creamos la fecha real en el momento en que abre la pantalla
+        const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+        const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+        const ahora = new Date();
+        let ampm = ahora.getHours() >= 12 ? 'p.m.' : 'a.m.';
+        let hora = ahora.getHours() % 12;
+        hora = hora ? hora : 12; 
+        let minutos = ahora.getMinutes() < 10 ? '0' + ahora.getMinutes() : ahora.getMinutes();
+        let fechaGenerada = `${dias[ahora.getDay()]}, ${ahora.getDate()} de ${meses[ahora.getMonth()]} de ${ahora.getFullYear()} - ${hora}:${minutos} ${ampm}`;
+
+        // 4. MOSTRAR DATOS EN PANTALLA
+        document.getElementById('displayMonto').innerText = "S/ " + monto;
+        document.getElementById('displayFecha').innerText = fechaGenerada;
+        
+        document.getElementById('displayEmpresa').innerText = empresa;
+        document.getElementById('displayServicio').innerText = servicioInput;
+        document.getElementById('displayNumero').innerText = numeroInput;
+        
+        // Se le agrega el 0 al inicio como hicimos en el anterior para uniformidad
+        document.getElementById('numOperacion').innerText = "0" + randomOp;
+
+        // --- 5. LA MAGIA: GUARDAR EN HISTORIAL EL PAQUETE COMPLETO ---
+        // Recuperamos el array guardado o creamos uno vacío
+        let movimientos = JSON.parse(localStorage.getItem('bcp_movimientos')) || [];
+        
+        // Creamos la fecha corta para la pantalla de cuentas (Ej: "28 febrero")
+        let fechaCorta = ahora.getDate() + " " + meses[ahora.getMonth()]; 
+        
+        // Sacamos la primera letra para el círculo azul (ej: "C" para Claro)
+        let inicialEmpresa = empresa.charAt(0).toUpperCase();
+
+        // Armamos el paquete con TODOS los datos que necesita el voucher.html
+        let nuevoMov = {
+            tipo: "servicio", 
+            letra: inicialEmpresa, 
+            titulo: empresa.toUpperCase(), // Título: CLARO
+            fecha: fechaCorta, // Para la lista: "28 febrero"
+            fechaCompleta: fechaGenerada, // Para el voucher: "Sábado, 28 de febrero..."
+            monto: monto,
+            destinoNombre: empresa, // Para el "Pagado a"
+            destinoNumero: numeroInput,
+            servicioNombre: servicioInput,
+            numOperacion: "0" + randomOp // El número fijo que se generó hoy
+        };
+
+        // Guardar en localStorage solo si no se ha guardado ya en esta sesión (evita duplicados si el usuario recarga la página)
+        if(!sessionStorage.getItem('mov_guardado_serv_' + randomOp)){
+            movimientos.unshift(nuevoMov); // Lo ponemos de primero en la lista
+            localStorage.setItem('bcp_movimientos', JSON.stringify(movimientos));
+            sessionStorage.setItem('mov_guardado_serv_' + randomOp, 'true'); 
+        }
+        // -------------------------------------------------------------
+
+        // --- 6. FUNCIONES DE DESCARGAR Y COMPARTIR ---
+        
+        function prepararParaFoto(esParaFoto) {
+            const botonesSuperior = document.querySelector('.acciones');
+            const btnInferior = document.querySelector('.btn-otra');
+            const linkInferior = document.querySelector('.link-inicio');
+            
+            if (esParaFoto) {
+                botonesSuperior.style.display = 'none';
+                btnInferior.style.display = 'none';
+                linkInferior.style.display = 'none';
+            } else {
+                botonesSuperior.style.display = 'flex';
+                btnInferior.style.display = 'block';
+                linkInferior.style.display = 'inline';
+            }
+        }
+
+        function descargarVoucher() {
+            prepararParaFoto(true); 
+            
+            setTimeout(() => {
+                html2canvas(document.body, { backgroundColor: '#002a80', scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    let nombreLimpio = empresa.replace(/[^a-zA-Z0-9]/g, "_");
+                    link.download = `Voucher_${nombreLimpio}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    prepararParaFoto(false); 
+                });
+            }, 150); 
+        }
+
+        function compartirVoucher() {
+            prepararParaFoto(true);
+
+            setTimeout(() => {
+                html2canvas(document.body, { backgroundColor: '#002a80', scale: 2 }).then(canvas => {
+                    canvas.toBlob(blob => {
+                        let nombreLimpio = empresa.replace(/[^a-zA-Z0-9]/g, "_");
+                        const file = new File([blob], `Voucher_${nombreLimpio}.png`, { type: 'image/png' });
+                        
+                        if (navigator.share) {
+                            navigator.share({
+                                title: `Pago de Servicio - ${empresa}`,
+                                files: [file]
+                            }).then(() => {
+                                prepararParaFoto(false);
+                            }).catch(err => {
+                                console.log('Error al compartir o cancelado:', err);
+                                prepararParaFoto(false);
+                            });
+                        } else {
+                            alert('Tu navegador no soporta la función de compartir directo.');
+                            prepararParaFoto(false);
+                        }
+                    });
+                });
+            }, 150);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mi Cuenta - Banca Móvil</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #e5e7eb;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .mobile-wrapper {
+            width: 100%;
+            max-width: 480px;
+            background-color: #ffffff;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* HEADER AZUL BCP */
+        .blue-header {
+            background-color: #002a8d;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            flex-shrink: 0;
+        }
+        .blue-header .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: -5px;
+            display: flex;
+            align-items: center;
+        }
+        .blue-header .back-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+        .blue-header .header-title {
+            font-size: 18px;
+            font-weight: 400;
+            margin-left: 15px;
+        }
+
+        /* ÁREA ESCROLEABLE */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px 20px;
+            background-color: #ffffff;
+        }
+        .scroll-content::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        /* DETALLES DE LA CUENTA */
+        .acc-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .acc-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #000;
+            letter-spacing: 0.5px;
+        }
+        .acc-number, .acc-cci {
+            font-size: 14px;
+            color: #666;
+            font-weight: 400;
+        }
+        .icon-orange-small {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        /* SALDO */
+        .balance-section {
+            margin-top: 25px;
+            margin-bottom: 30px;
+        }
+        .bal-label {
+            font-size: 15px;
+            color: #000;
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+        .bal-amount-container {
+            display: flex;
+            align-items: baseline;
+        }
+        .bal-currency {
+            font-size: 38px;
+            font-weight: 300;
+            color: #002a8d;
+            margin-right: 8px;
+        }
+        .bal-amount {
+            font-size: 42px;
+            font-weight: 300;
+            color: #002a8d;
+            letter-spacing: -1px;
+        }
+
+        /* BOTONES DE ACCIÓN (CIRCULARES) */
+        .actions-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 25px;
+        }
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .action-circle {
+            width: 52px;
+            height: 52px;
+            background-color: #ff7100; /* Naranja BCP */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .action-circle.white-icon img {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            filter: brightness(0) invert(1); /* Vuelve blanco el SVG/PNG */
+        }
+        .action-circle.full-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Para que el JPG del cerdo llene el círculo */
+        }
+        .action-text {
+            font-size: 12.5px;
+            color: #000;
+            line-height: 1.2;
+            font-weight: 400;
+        }
+
+        /* BANNER */
+        .banner-container {
+            margin-bottom: 30px;
+        }
+        .banner-img {
+            width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        /* MOVIMIENTOS */
+        .movs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .movs-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #002a8d;
+        }
+        .search-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            cursor: pointer;
+        }
+        
+        .movs-list {
+            min-height: 100px; 
+            padding-bottom: 30px;
+        }
+
+        /* ESTILOS DE CADA MOVIMIENTO Y GRUPO */
+        .month-group-header {
+            font-size: 14.5px;
+            color: #555;
+            margin: 20px 0 10px 0;
+            font-weight: 400;
+        }
+        .mov-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .mov-item:last-child {
+            border-bottom: none;
+        }
+        .mov-icon {
+            width: 42px;
+            height: 42px;
+            background-color: #2b61ff; /* Azul del círculo */
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 17px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .mov-details {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+        .mov-title {
+            font-size: 14.5px;
+            color: #000;
+            font-weight: 400;
+            margin-bottom: 4px;
+        }
+        .mov-date {
+            font-size: 12.5px;
+            color: #666;
+        }
+        .mov-right {
+            display: flex;
+            align-items: center;
+        }
+        .mov-amount {
+            color: #c81d31; /* Rojo para gastos */
+            font-size: 14.5px;
+            font-weight: 400;
+        }
+        .mov-arrow {
+            color: #999;
+            font-size: 22px;
+            margin-left: 8px;
+            line-height: 1;
+            margin-top: -2px;
+        }
+
+        /* MENÚ INFERIOR (Estilo BCP) */
+        .bottom-menu {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #ffffff;
+            height: 65px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            border-top: 1px solid #f0f0f0;
+        }
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            flex: 1;
+            cursor: pointer;
+        }
+        .menu-item .icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+            /* Gris por defecto */
+            filter: brightness(0) saturate(100%) invert(64%) sepia(4%) saturate(702%) hue-rotate(143deg) brightness(89%) contrast(85%);
+        }
+        .menu-item .text {
+            font-size: 10px;
+            color: #898E8F;
+        }
+        .menu-item.active .icon {
+            /* Azul oscuro BCP cuando está activo */
+            filter: brightness(0) saturate(100%) invert(13%) sepia(90%) saturate(4155%) hue-rotate(227deg) brightness(85%) contrast(102%);
+        }
+        .menu-item.active .text {
+            color: #072799;
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="mobile-wrapper">
+        
+        <header class="blue-header">
+            <button class="back-btn" onclick="window.location.href='inicio.html'">
+                <svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>
+            </button>
+            <div class="header-title">Mi cuenta</div>
+        </header>
+
+        <main class="scroll-content">
+            
+            <div class="account-details-container">
+                <div class="acc-row">
+                    <span class="acc-title">Cuenta Digital Soles</span>
+                    <img src="img/lapiz-cop.svg" alt="Editar" class="icon-orange-small">
+                </div>
+                <div class="acc-row" style="margin-bottom: 8px;">
+                    <span class="acc-number">570-98341256-0-18</span>
+                </div>
+                <div class="acc-row">
+                    <span class="acc-cci">CCI: 002-570-98341256018-14</span>
+                    <img src="img/compartir-cop.svg" alt="Compartir" class="icon-orange-small">
+                </div>
+            </div>
+
+            <div class="balance-section">
+                <div class="bal-label">Disponible</div>
+                <div class="bal-amount-container">
+                    <span class="bal-currency">S/</span>
+                    <span class="bal-amount" id="accountBalanceDisplay">0.00</span>
+                </div>
+            </div>
+
+            <div class="actions-grid">
+                <a href="trans.html" class="action-item">
+                    <div class="action-circle white-icon">
+                        <img src="img/arrows.svg" alt="Transferir">
+                    </div>
+                    <span class="action-text">Transferir<br>dinero</span>
+                </a>
+
+                <a href="servicio.html" class="action-item">
+                    <div class="action-circle white-icon">
+                        <img src="img/aqua.webp" alt="Pagar">
+                    </div>
+                    <span class="action-text">Pagar<br>servicios</span>
+                </a>
+
+                <div class="action-item">
+                    <div class="action-circle full-img">
+                        <img src="img/cerdo-icon.jpg" alt="Wardaditos">
+                    </div>
+                    <span class="action-text">Ahorra con<br>Wardaditos</span>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-circle">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="5" cy="12" r="2.5" fill="white"/>
+                            <circle cx="12" cy="12" r="2.5" fill="white"/>
+                            <circle cx="19" cy="12" r="2.5" fill="white"/>
+                        </svg>
+                    </div>
+                    <span class="action-text">Más</span>
+                </div>
+            </div>
+
+            <div class="banner-container">
+                <img src="img/banner.jpg" alt="Monitorea tus finanzas" class="banner-img">
+            </div>
+
+            <div class="movs-container">
+                <div class="movs-header">
+                    <h3 class="movs-title">Movimientos</h3>
+                    <img src="img/searchmovs.svg" alt="Buscar" class="search-icon">
+                </div>
+                
+                <div class="movs-list" id="movsList">
+                    </div>
+            </div>
+
+        </main>
+
+        <footer class="bottom-menu">
+            <a href="inicio.html" class="menu-item active" id="btn-inicio">
+                <img src="img/inicio-flash.svg" alt="Inicio" class="icon">
+                <span class="text">Inicio</span>
+            </a>
+            <div class="menu-item" id="btn-operaciones">
+                <img src="img/operaciones-flash.svg" alt="Operaciones" class="icon">
+                <span class="text">Operaciones</span>
+            </div>
+            <div class="menu-item">
+                <img src="img/descubre-flash.svg" alt="Descubre" class="icon">
+                <span class="text">Descubre</span>
+            </div>
+            <a href="opciones.html" class="menu-item">
+                <img src="img/configuracion-flash.svg" alt="Configuración" class="icon">
+                <span class="text">Configuración</span>
+            </a>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // --- 1. CARGAR SALDO ---
+            const savedBalance = localStorage.getItem("userBalance");
+            const balanceDisplay = document.getElementById("accountBalanceDisplay");
+            
+            if (savedBalance) {
+                balanceDisplay.innerText = parseFloat(savedBalance).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            } else {
+                balanceDisplay.innerText = "1,200.00";
+            }
+
+            // --- 2. CARGAR Y AGRUPAR MOVIMIENTOS ---
+            const movs = JSON.parse(localStorage.getItem('bcp_movimientos')) || [];
+            const movsList = document.getElementById('movsList');
+
+            if (movs.length > 0) {
+                const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+                const mesActual = meses[new Date().getMonth()];
+
+                const grupos = {};
+                const ordenGrupos = []; // Para mantener el orden cronológico
+
+                // Usamos el index para poder saber a qué ID ir en el voucher
+                movs.forEach((mov, index) => {
+                    mov.originalIndex = index; // Guardamos su posición real
+
+                    // Extraer el mes de "28 febrero"
+                    const partesFecha = mov.fecha.split(" ");
+                    let mesMov = partesFecha.length > 1 ? partesFecha[1].toLowerCase() : "";
+
+                    // Darle formato visual a la fecha para que el mes sea Mayúscula (Ej: 28 Febrero)
+                    let fechaVisual = mov.fecha;
+                    if (partesFecha.length === 2) {
+                        fechaVisual = partesFecha[0] + " " + partesFecha[1].charAt(0).toUpperCase() + partesFecha[1].slice(1);
+                    }
+
+                    // Determinar el título del grupo ("Este mes" o el nombre del mes)
+                    let nombreGrupo = "";
+                    if (mesMov === mesActual) {
+                        nombreGrupo = "Este mes";
+                    } else {
+                        nombreGrupo = mesMov.charAt(0).toUpperCase() + mesMov.slice(1);
+                    }
+
+                    // Agrupar
+                    if (!grupos[nombreGrupo]) {
+                        grupos[nombreGrupo] = [];
+                        ordenGrupos.push(nombreGrupo);
+                    }
+                    
+                    // Modificamos el objeto para agregarle la fecha con mayúscula
+                    mov.fechaVisual = fechaVisual;
+                    grupos[nombreGrupo].push(mov);
+                });
+
+                // Pintar los grupos en el HTML
+                let htmlFinal = "";
+                ordenGrupos.forEach(grupo => {
+                    htmlFinal += `<div class="month-group-header">${grupo}</div>`;
+                    
+                    grupos[grupo].forEach(mov => {
+                        // Formatear el monto con comas y asegurar los decimales
+                        let montoF = parseFloat(mov.monto).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                        
+                        // AQUÍ ESTÁ EL CAMBIO: Se agrega el onclick y el cursor pointer
+                        htmlFinal += `
+                            <div class="mov-item" onclick="window.location.href='voucher.html?id=${mov.originalIndex}'" style="cursor: pointer;">
+                                <div class="mov-icon">${mov.letra}</div>
+                                <div class="mov-details">
+                                    <div class="mov-title">${mov.titulo}</div>
+                                    <div class="mov-date">${mov.fechaVisual}</div>
+                                </div>
+                                <div class="mov-right">
+                                    <span class="mov-amount">-S/ ${montoF}</span>
+                                    <span class="mov-arrow">›</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+
+                movsList.innerHTML = htmlFinal;
+            }
+        });
+    </script>
+</body>
+</html>

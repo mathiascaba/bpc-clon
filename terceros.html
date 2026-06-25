@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Transferir dinero</title>
+    <style>
+        /* --- NUEVO: EVITAR CUADROS AZULES DE SELECCIÓN EN MÓVILES --- */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        input:focus, button:focus, a:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden; /* Evita scroll innecesario */
+            position: relative; /* Clave para el botón fijo abajo */
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: #fff;
+        }
+
+        .header-title {
+            /* Aumentado a 24px */
+            font-size: 24px;
+            font-weight: 400;
+            color: #444;
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .icon-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #444;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .main-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* INPUT CONTAINER */
+        .input-container {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px 15px; /* Un poco más de padding */
+            margin-top: 0; 
+            display: flex;
+            align-items: center;
+        }
+
+        .input-field {
+            width: 100%;
+            border: none;
+            outline: none;
+            /* Aumentado a 18px */
+            font-size: 18px; 
+            color: #333;
+            font-family: inherit;
+        }
+
+        /* Estilo del texto cuando se escribe */
+        .input-field:not(:placeholder-shown) {
+            font-weight: 600;
+            font-size: 19px; /* Ligeramente más grande al escribir */
+        }
+
+        .input-field::placeholder {
+            color: #888;
+            font-weight: 400;
+            font-size: 18px; /* Placeholder más grande */
+        }
+
+        /* BOTÓN SIGUIENTE (MODIFICADO PARA SER FIJO Y RESPETAR BARRA NAVEGACIÓN) */
+        .btn-container {
+            display: none; 
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            bottom: max(30px, env(safe-area-inset-bottom));
+        }
+
+        .btn-siguiente {
+            width: 100%;
+            background-color: #ff7800;
+            color: white;
+            border: none;
+            border-radius: 30px; /* Un poco más redondeado */
+            padding: 15px 0;
+            /* Aumentado a 20px */
+            font-size: 20px; 
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-siguiente:active {
+            background-color: #e56b00;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button class="icon-btn" onclick="window.history.back()">
+            <svg viewBox="0 0 24 24">
+                <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+            </svg>
+        </button>
+        
+        <div class="header-title">Transferir dinero</div>
+
+        <button class="icon-btn" onclick="window.location.href='inicio.html'">
+            <svg viewBox="0 0 24 24">
+                <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+            </svg>
+        </button>
+    </header>
+
+    <div class="main-content">
+        
+        <div class="input-container">
+            <input type="tel" id="cuentaInput" class="input-field" placeholder="Ingresa cuenta BCP o interbancaria" autocomplete="off">
+        </div>
+
+    </div>
+
+    <div class="btn-container" id="btnContainer">
+        <button class="btn-siguiente" onclick="irAlSiguientePaso()">Siguiente</button>
+    </div>
+
+    <script>
+        const input = document.getElementById('cuentaInput');
+        const btnContainer = document.getElementById('btnContainer');
+
+        input.addEventListener('input', function() {
+            if (this.value.trim().length > 0) {
+                btnContainer.style.display = 'block'; 
+            } else {
+                btnContainer.style.display = 'none'; 
+            }
+        });
+
+        function irAlSiguientePaso() {
+            // Guardamos la cuenta por si la necesitas en el comprobante final
+            localStorage.setItem('v_cuenta', input.value); 
+            
+            // Redireccionamos a montobcp.html
+            window.location.href = 'montobcp.html';
+        }
+    </script>
+</body>
+</html>

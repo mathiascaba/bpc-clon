@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Enviar a</title>
+    <style>
+        /* Optimización para móviles */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* --- PANTALLA DE CARGA BLANCA --- */
+        #white-loader-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #002a80;
+            z-index: 9999;
+            display: none; /* Oculto por defecto */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-icon { width: 40px; height: 40px; z-index: 2; }
+
+        .spinner-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #ff7800;
+            animation: spin 1s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 400;
+            color: #444;
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .icon-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #444;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 20px;
+            overflow: hidden; /* Evita que el fondo crezca más de la pantalla */
+        }
+
+        /* PASO 1: BUSCADOR */
+        #step-1 {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden; /* Permite que la lista interna haga scroll */
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 12px 15px;
+            flex-shrink: 0;
+        }
+
+        .search-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: #888;
+            margin-right: 12px;
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 16px;
+            color: #333;
+            font-family: inherit;
+        }
+
+        .search-input::placeholder {
+            color: #777;
+            font-weight: 400;
+        }
+
+        /* --- NUEVO: LISTA DE CONTACTOS --- */
+        .contacts-list {
+            margin-top: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-bottom: 20px;
+        }
+        
+        /* Ocultar la barra de scroll para que se vea más limpio en Android/iOS */
+        .contacts-list::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .letter-header {
+            font-size: 13px;
+            color: #7a828a;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-top: 15px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .contact-item {
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+
+        .contact-item:active {
+            background-color: #f9f9f9;
+        }
+
+        .contact-name {
+            font-size: 14.5px;
+            font-weight: 500;
+            color: #111;
+            margin-bottom: 4px;
+        }
+
+        .contact-phone {
+            font-size: 13px;
+            color: #888;
+        }
+
+        /* FOOTER / BOTÓN SIGUIENTE */
+        .footer-container {
+            margin-top: auto;
+            padding-top: 15px;
+            padding-bottom: 40px;
+            background: white;
+            display: none; 
+            flex-shrink: 0;
+        }
+
+        .btn-siguiente {
+            width: 100%;
+            background-color: #ff7800;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 16px 0;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-siguiente:active { background-color: #e06900; }
+
+        /* --- NUEVO ESTILO: PASO 2 (Oculto al inicio) --- */
+        #step-2 {
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            margin: 0 -5px; /* Compensa un poco el padding lateral */
+        }
+        
+        #step-2::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .entity-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+
+        .entity-item:active {
+            background-color: #f9f9f9;
+        }
+
+        .entity-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .entity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: block;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+
+        .entity-name {
+            font-size: 14.5px;
+            font-weight: 400;
+            color: #000;
+        }
+
+        .entity-name.text-only {
+            margin-left: 10px;
+        }
+
+        .entity-arrow {
+            color: #888;
+            font-size: 18px;
+            margin-right: 5px;
+        }
+
+        .other-entities-title {
+            color: #001f7a;
+            font-size: 13.5px;
+            font-weight: 500;
+            padding: 25px 10px 10px 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="white-loader-screen">
+        <div class="loader-container">
+            <div class="spinner-ring"></div>
+            <img src="img/lg_favicon_white.svg" alt="Cargando" class="loader-icon">
+        </div>
+    </div>
+
+    <header class="header">
+        <button class="icon-btn" onclick="window.history.back()">
+            <svg viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+        </button>
+        <div class="header-title">Enviar a</div>
+        <button class="icon-btn" onclick="window.location.href='inicio.html'">
+            <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+        </button>
+    </header>
+
+    <div class="main-content">
+        
+        <div id="step-1">
+            <div class="search-bar">
+                <div class="search-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </div>
+                <input type="tel" id="contactInput" class="search-input" placeholder="Buscar contacto o ingresa el celular" maxlength="9">
+            </div>
+
+            <div class="contacts-list">
+                
+                <div class="letter-header">A</div>
+                <div class="contact-item" onclick="seleccionarContacto('912799050')">
+                    <div class="contact-name">Andrea Garcia</div>
+                    <div class="contact-phone">912 799 050</div>
+                </div>
+                <div class="contact-item" onclick="seleccionarContacto('988123456')">
+                    <div class="contact-name">Arturo Rojas</div>
+                    <div class="contact-phone">988 123 456</div>
+                </div>
+
+                <div class="letter-header">C</div>
+                <div class="contact-item" onclick="seleccionarContacto('961551521')">
+                    <div class="contact-name">Carlos Herrera</div>
+                    <div class="contact-phone">961 551 521</div>
+                </div>
+                <div class="contact-item" onclick="seleccionarContacto('934567890')">
+                    <div class="contact-name">Carmen Salinas</div>
+                    <div class="contact-phone">934 567 890</div>
+                </div>
+
+                <div class="letter-header">E</div>
+                <div class="contact-item" onclick="seleccionarContacto('923774371')">
+                    <div class="contact-name">Elena Herrera</div>
+                    <div class="contact-phone">923 774 371</div>
+                </div>
+                <div class="contact-item" onclick="seleccionarContacto('914708293')">
+                    <div class="contact-name">Elena Romero</div>
+                    <div class="contact-phone">914 708 293</div>
+                </div>
+
+                <div class="letter-header">F</div>
+                <div class="contact-item" onclick="seleccionarContacto('959029786')">
+                    <div class="contact-name">Francisco Castro</div>
+                    <div class="contact-phone">959 029 786</div>
+                </div>
+
+                <div class="letter-header">J</div>
+                <div class="contact-item" onclick="seleccionarContacto('980121609')">
+                    <div class="contact-name">Jorge Rodriguez</div>
+                    <div class="contact-phone">980 121 609</div>
+                </div>
+                <div class="contact-item" onclick="seleccionarContacto('912345678')">
+                    <div class="contact-name">Juan Perez</div>
+                    <div class="contact-phone">912 345 678</div>
+                </div>
+
+                <div class="letter-header">M</div>
+                <div class="contact-item" onclick="seleccionarContacto('955444333')">
+                    <div class="contact-name">Maria Antonieta</div>
+                    <div class="contact-phone">955 444 333</div>
+                </div>
+                <div class="contact-item" onclick="seleccionarContacto('933222111')">
+                    <div class="contact-name">Miguel Cardenas</div>
+                    <div class="contact-phone">933 222 111</div>
+                </div>
+
+                <div class="letter-header">R</div>
+                <div class="contact-item" onclick="seleccionarContacto('977666555')">
+                    <div class="contact-name">Roberto Carlos</div>
+                    <div class="contact-phone">977 666 555</div>
+                </div>
+
+                <div class="letter-header">S</div>
+                <div class="contact-item" onclick="seleccionarContacto('988777666')">
+                    <div class="contact-name">Susana Gimenez</div>
+                    <div class="contact-phone">988 777 666</div>
+                </div>
+
+                <div class="letter-header">V</div>
+                <div class="contact-item" onclick="seleccionarContacto('911222333')">
+                    <div class="contact-name">Victor Hugo</div>
+                    <div class="contact-phone">911 222 333</div>
+                </div>
+                
+            </div>
+
+            <div class="footer-container" id="footerBtn">
+                <button class="btn-siguiente" onclick="irAlSiguiente()">Siguiente</button>
+            </div>
+        </div>
+
+        <div id="step-2">
+            <div class="entity-item" onclick="irAMonto('BCP')">
+                <div class="entity-left">
+                    <img src="img/yaarbc.png" alt="BCP" class="entity-icon">
+                    <div class="entity-name">BCP</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            
+            <div class="entity-item" onclick="irAMonto('Yape')">
+                <div class="entity-left">
+                    <img src="img/LogoYapeCirculo.svg" alt="YAPE" class="entity-icon">
+                    <div class="entity-name">YAPE</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+
+            <div class="other-entities-title">Otras entidades</div>
+
+            <div class="entity-item" onclick="irAMonto('Plin')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">Plin</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            <div class="entity-item" onclick="irAMonto('Bim')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">Bim</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            <div class="entity-item" onclick="irAMonto('Tunki')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">Tunki</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            <div class="entity-item" onclick="irAMonto('Agora / Oh!')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">Agora / Oh!</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            <div class="entity-item" onclick="irAMonto('BBVA')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">BBVA</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            <div class="entity-item" onclick="irAMonto('Interbank')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">Interbank</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            <div class="entity-item" onclick="irAMonto('Financiera Efectiva')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">Financiera Efectiva</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            <div class="entity-item" onclick="irAMonto('Dale')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">Dale</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+            <div class="entity-item" onclick="irAMonto('Izipay')">
+                <div class="entity-left">
+                    <div class="entity-name text-only">Izipay</div>
+                </div>
+                <div class="entity-arrow">›</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const input = document.getElementById('contactInput');
+        const footer = document.getElementById('footerBtn');
+
+        // Validación de 9 dígitos al escribir
+        input.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, ''); // Solo números
+            if (this.value.length === 9) {
+                footer.style.display = 'block';
+            } else {
+                footer.style.display = 'none';
+            }
+        });
+
+        function seleccionarContacto(numero) {
+            input.value = numero;
+            // Disparamos manualmente el evento 'input' para que aparezca el botón Siguiente
+            input.dispatchEvent(new Event('input'));
+        }
+
+        function irAlSiguiente() {
+            // 1. Guardar el celular
+            localStorage.setItem('v_celular_destino', input.value);
+
+            // 2. Mostrar pantalla de carga blanca
+            document.getElementById('white-loader-screen').style.display = 'flex';
+
+            // 3. Esperar 1.5 segundos y cambiar de pantalla
+            setTimeout(function() {
+                document.getElementById('white-loader-screen').style.display = 'none';
+                document.getElementById('step-1').style.display = 'none'; // Ocultar buscador
+                document.getElementById('step-2').style.display = 'flex'; // Mostrar opción Yape
+            }, 1500);
+        }
+
+        // NOTA: Nueva función para guardar la entidad seleccionada
+        function irAMonto(entidad) {
+            localStorage.setItem('v_entidad_destino', entidad);
+            window.location.href = 'montocel.html';
+        }
+    </script>
+
+</body>
+</html>

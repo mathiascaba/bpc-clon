@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Opciones</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Asegura que el body de opciones sea oscuro */
+        body.opciones-body {
+            background-color: #1a1a1a;
+        }
+        /* Ajuste clave: Quitar padding lateral para que la tarjeta toque los bordes */
+        .opciones-container {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            background-color: #1a1a1a;
+        }
+        /* Como quitamos el padding del contenedor, se lo damos al header */
+        .minimal-header {
+            padding: 40px 20px 20px 20px;
+        }
+
+        /* ESTILO PARA EL BOTÓN ROJO */
+        .option-btn.red .btn-icon-circle {
+            background-color: #d9534f !important;
+        }
+
+        /* --- MODAL NATIVO PERSONALIZADO --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        .modal-card {
+            background: white;
+            width: 100%;
+            max-width: 320px;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+        }
+        .modal-card h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 20px;
+        }
+        .modal-card p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.4;
+            margin-bottom: 25px;
+        }
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-modal {
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-confirm {
+            background-color: #ff7800;
+            color: white;
+        }
+        .btn-cancel {
+            background-color: transparent;
+            color: #ff7800;
+            font-weight: 600;
+        }
+
+        /* --- NUEVO: ESTILOS MODAL AGREGAR CUENTA --- */
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+            outline: none;
+            font-family: 'Roboto', sans-serif;
+        }
+        .form-group input:focus {
+            border-color: #ff7800;
+        }
+
+        /* --- NOTIFICACIÓN TOAST NATIVA --- */
+        #toast-msg {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 10001;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
+        }
+        #toast-msg.show {
+            visibility: visible;
+            animation: fadein 0.3s, fadeout 0.3s 2.7s;
+        }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body class="opciones-body">
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card">
+            <h3>¿Borrar historial?</h3>
+            <p>Se eliminarán todos los movimientos registrados hasta el momento. Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button class="btn-modal btn-confirm" onclick="ejecutarBorrado()">SÍ, ELIMINAR</button>
+                <button class="btn-modal btn-cancel" onclick="cerrarModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addAccountModal">
+        <div class="modal-card">
+            <h3>Agregar Banco</h3>
+            <p style="font-size: 14px; margin-bottom: 20px;">Registra una cuenta para que esté disponible para todos los usuarios.</p>
+            
+            <div class="form-group">
+                <label>Nro</label>
+                <input type="tel" id="newAccountNum" placeholder="Ej: 19100000000000" autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label>Nombre del Titular</label>
+                <input type="text" id="newAccountName" placeholder="Ej: Juan Perez" autocomplete="off">
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 25px;">
+                <button class="btn-modal btn-confirm" onclick="guardarCuenta()">GUARDAR CUENTA</button>
+                <button class="btn-modal btn-cancel" onclick="cerrarAddModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-wrapper">
+        <div class="mobile-container opciones-container" style="padding: 0 !important;">
+            
+            <div class="minimal-header">
+                <a href="inicio.html" class="back-btn">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </a>
+                <h2>OPCIONES</h2>
+            </div>
+
+            <div class="options-card">
+                
+                <div class="buttons-group">
+                    <a href="datos.html" class="option-btn purple" style="text-decoration: none;">
+                        <div class="btn-icon-circle">
+                            <img src="img/opc-user.svg" alt="" class="btn-icon">
+                        </div>
+                        <span class="btn-text">DATOS DE MI CUENTA</span>
+                    </a>
+
+                    <div class="option-btn purple" onclick="abrirAddModal()" style="cursor: pointer;">
+                        <div class="btn-icon-circle">
+                            <img src="img/opc-bank.svg" alt="" class="btn-icon">
+                        </div>
+                        <span class="btn-text">AGREGAR BANCO</span>
+                    </div>
+
+                    <a href="agregarct.html" class="option-btn purple" style="text-decoration: none;">
+                        <div class="btn-icon-circle">
+                            <img src="img/opc-contact.svg" alt="" class="btn-icon">
+                        </div>
+                        <span class="btn-text">AGREGAR CONTACTO</span>
+                    </a>
+
+                    <a href="qradd.html" class="option-btn purple" style="text-decoration: none;">
+                        <div class="btn-icon-circle">
+                            <img src="img/opc-qr.svg" alt="" class="btn-icon">
+                        </div>
+                        <span class="btn-text">AGREGAR QR</span>
+                    </a>
+
+                    <a href="editable.html" class="option-btn purple" style="text-decoration: none;">
+                        <div class="btn-icon-circle">
+                            <img src="img/opc-voucher.svg" alt="" class="btn-icon">
+                        </div>
+                        <span class="btn-text">EDITAR VOUCHER</span>
+                    </a>
+                </div>
+
+                <p class="section-label">Otras opciones</p>
+
+                <div class="buttons-group">
+                    <a href="https://t.me/+6weA5d0fVzFlYTcx" target="_blank" class="option-btn cyan" style="text-decoration: none;">
+                        <div class="btn-icon-circle">
+                            <img src="img/opc-support.svg" alt="" class="btn-icon">
+                        </div>
+                        <span class="btn-text">CONTACTAR SOPORTE</span>
+                    </a>
+
+                    <a href="sobre.html" class="option-btn cyan" style="text-decoration: none;">
+                        <div class="btn-icon-circle">
+                            <img src="img/opc-voucher.svg" alt="" class="btn-icon">
+                        </div>
+                        <span class="btn-text">LEE ESTO</span>
+                    </a>
+
+                    <div class="option-btn red" onclick="abrirModal()" style="cursor: pointer;">
+                        <div class="btn-icon-circle">
+                            <img src="img/opc-support.svg" alt="" class="btn-icon" style="filter: brightness(0) invert(1);">
+                        </div>
+                        <span class="btn-text">BORRAR MOVIMIENTOS</span>
+                    </div>
+                </div>
+
+                <div style="height: 50px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast-msg"></div>
+
+    <script>
+        // --- SISTEMA DE TOAST ---
+        window.mostrarToast = function(mensaje, color) {
+            const toast = document.getElementById('toast-msg');
+            toast.innerText = mensaje;
+            toast.style.backgroundColor = color || '#333';
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // --- LÓGICA MODAL BORRADO ---
+        const modal = document.getElementById('confirmModal');
+        window.abrirModal = function() { modal.style.display = 'flex'; }
+        window.cerrarModal = function() { modal.style.display = 'none'; }
+        window.ejecutarBorrado = function() {
+            localStorage.removeItem('bcp_movimientos');
+            window.cerrarModal();
+            window.location.href = 'inicio.html';
+        }
+
+        // --- LÓGICA MODAL AGREGAR CUENTA ---
+        const addModal = document.getElementById('addAccountModal');
+        window.abrirAddModal = function() { 
+            addModal.style.display = 'flex'; 
+        }
+        window.cerrarAddModal = function() { 
+            addModal.style.display = 'none'; 
+            document.getElementById('newAccountNum').value = '';
+            document.getElementById('newAccountName').value = '';
+        }
+
+        window.guardarCuenta = function() {
+            const numInput = document.getElementById('newAccountNum');
+            const nomInput = document.getElementById('newAccountName');
+            const num = numInput.value.trim();
+            const nom = nomInput.value.trim();
+            
+            if(!num || !nom) {
+                window.mostrarToast("Por favor, completa ambos campos.", "#d9534f");
+                return;
+            }
+            
+            // Guardar localmente
+            let cuentas = JSON.parse(localStorage.getItem('bcp_cuentas') || '[]');
+            cuentas.push({ numero: num, titular: nom, fecha: new Date().toISOString() });
+            localStorage.setItem('bcp_cuentas', JSON.stringify(cuentas));
+            
+            window.mostrarToast("¡Cuenta agregada exitosamente!", "#22c55e");
+            window.cerrarAddModal();
+        }
+
+        // Cerrar modales si tocan fuera de la tarjeta blanca
+        window.onclick = function(event) {
+            if (event.target == modal) { window.cerrarModal(); }
+            if (event.target == addModal) { window.cerrarAddModal(); }
+        }
+    </script>
+
+</body>
+</html>

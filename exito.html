@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Operación exitosa</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* ESTO QUITA EL CUADRO AZUL AL HACER CLICK EN CUALQUIER LADO */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #002a80;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background-color: #fff;
+            text-align: center;
+            padding: 40px 25px;
+            margin-top: 3px;
+            border-top-left-radius: 28px;
+            border-top-right-radius: 28px;
+            min-height: calc(100vh - 12px); 
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- ANIMACIÓN DE TRAZO --- */
+        @keyframes dibujar-trazo {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .check-icon svg {
+            width: 75px;
+            height: 75px;
+            fill: none;
+            stroke: #ff7e00;
+            stroke-width: 2.5;
+            margin-bottom: 20px;
+        }
+
+        .circle-path {
+            stroke-dasharray: 150;
+            stroke-dashoffset: 150;
+            transform: rotate(90deg) scaleX(-1);
+            transform-origin: center;
+            animation: dibujar-trazo 1s ease-out forwards;
+        }
+
+        .check-path {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: dibujar-trazo 0.6s 0.75s ease-out forwards;
+        }
+
+        h2 { font-size: 24px; font-weight: 700; margin: 0 0 10px 0; color: #000; }
+        .monto-grande { font-size: 54px; font-weight: 500; color: #002a80; margin: 0; line-height: 1.1; }
+        .fecha-sub { color: #888; font-size: 18px; margin-top: 12px; margin-bottom: 35px; }
+        .acciones { display: flex; justify-content: center; gap: 50px; margin-bottom: 45px; }
+        .accion-btn { display: flex; align-items: center; gap: 8px; color: #ff7e00; font-weight: 600; font-size: 17px; cursor: pointer; text-decoration: none; }
+        .accion-btn img { width: 22px; height: 22px; }
+        
+        .detalles-lista { width: 100%; text-align: left; margin-bottom: 10px; }
+        
+        .fila { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid #b0b0b0; }
+        .fila:last-child { border-bottom: none; }
+        
+        .label { font-size: 17px; color: #000; font-weight: 400; }
+        .valor { text-align: right; font-size: 17px; color: #000; }
+        .valor strong { display: block; font-weight: 700; font-size: 18px; margin-bottom: 3px; }
+        .valor span { display: block; color: #666; font-size: 15px; }
+
+        /* LINEA SEPARADORA */
+        .separador-banner {
+            width: 100%;
+            height: 1px;
+            background-color: #b0b0b0;
+            margin-bottom: 30px;
+        }
+
+        .banner { width: 100%; background-color: #0039a6; border-radius: 10px; padding: 12px; display: flex; align-items: center; position: relative; margin: 0 0 35px 0; color: white; box-sizing: border-box; overflow: hidden; height: 100px; }
+        .banner-img { position: absolute; left: 0; bottom: -5px; height: 100px; width: auto; }
+        .banner-text { margin-left: 85px; text-align: left; }
+        .banner-text h4 { margin: 0; font-size: 18px; font-weight: 700; }
+        .banner-text p { margin: 3px 0 0 0; font-size: 15px; opacity: 0.9; }
+        
+        .btn-otra { 
+            background-color: #ff7e00; 
+            color: white; 
+            border: none; 
+            border-radius: 35px; 
+            padding: 15px 0; 
+            width: 85%; 
+            display: block; 
+            margin: 0 auto 20px auto;
+            font-size: 17px; 
+            font-weight: 500; 
+            cursor: pointer; 
+        }
+        
+        .link-inicio { color: #ff7e00; text-decoration: none; font-size: 17px; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="check-icon">
+            <svg viewBox="0 0 50 50">
+                <circle class="circle-path" cx="25" cy="25" r="23" stroke="#ff7e00" stroke-width="2" fill="none"/>
+                <path class="check-path" d="M15 25 L22 32 L35 18" stroke="#ff7e00" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+
+        <h2>¡Operación exitosa!</h2>
+        <div class="monto-grande" id="displayMonto">S/ 0.00</div>
+        <div class="fecha-sub" id="displayFecha">--</div>
+
+        <div class="acciones">
+            <div class="accion-btn" onclick="descargarVoucher()">
+                <img src="img/descargar-icon.svg" alt="Descargar"> Descargar
+            </div>
+            <div class="accion-btn" onclick="compartirVoucher()">
+                <img src="img/compartir-icon.svg" alt="Compartir"> Compartir
+            </div>
+        </div>
+
+        <div class="detalles-lista">
+            <div class="fila">
+                <div class="label" style="width: 40%">Enviado a</div>
+                <div class="valor" style="width: 60%">
+                    <strong id="displayNombre">Nombre</strong>
+                    <span id="displayCuenta">****0000</span>
+                    <span id="displayMoneda">Moneda soles</span>
+                </div>
+            </div>
+            <div class="fila">
+                <div class="label">Desde</div>
+                <div class="valor">
+                    <strong>Cuenta Digital Soles</strong>
+                    <span>7809</span>
+                </div>
+            </div>
+            <div class="fila" style="border-bottom: none;"> 
+                <div class="label">Número de operación</div>
+                <div class="valor">
+                    <strong id="numOperacion">0000000</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="separador-banner"></div>
+
+        <div class="banner">
+            <img src="img/super-des.svg" alt="Personaje" class="banner-img">
+            <div class="banner-text">
+                <h4>Protege tus tarjetas</h4>
+                <p>Por solo S/ 13.99 al mes inc. IGV</p>
+            </div>
+        </div>
+
+        <button class="btn-otra" onclick="window.history.back()">Realizar otra transferencia</button>
+        <a href="inicio.html" class="link-inicio">Ir al inicio</a>
+    </div>
+
+    <script>
+        const nombre = localStorage.getItem('v_nombre') || "Nombre";
+        const cuentaFull = localStorage.getItem('v_cuenta') || "0000";
+        let monto = localStorage.getItem('v_monto');
+        
+        if(monto) {
+            if (!isNaN(monto)) { monto = parseFloat(monto).toFixed(2); }
+        } else { monto = "0.00"; }
+
+        // GENERAR NÚMERO DE OPERACIÓN Y FECHA DINÁMICA
+        const randomOp = Math.floor(10000000 + Math.random() * 90000000);
+
+        const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+        const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+        const ahora = new Date();
+        let ampm = ahora.getHours() >= 12 ? 'p.m.' : 'a.m.';
+        let hora = ahora.getHours() % 12;
+        hora = hora ? hora : 12; 
+        let minutos = ahora.getMinutes() < 10 ? '0' + ahora.getMinutes() : ahora.getMinutes();
+        let fechaGenerada = `${dias[ahora.getDay()]}, ${ahora.getDate()} de ${meses[ahora.getMonth()]} de ${ahora.getFullYear()} - ${hora}:${minutos} ${ampm}`;
+
+        // Cortar cuenta
+        let cuentaFinal = "0000";
+        if (cuentaFull.length >= 4) {
+            cuentaFinal = cuentaFull.slice(-4);
+        } else {
+            cuentaFinal = cuentaFull;
+        }
+
+        // MOSTRAR DATOS EN PANTALLA
+        document.getElementById('displayMonto').innerText = "S/ " + monto;
+        document.getElementById('displayFecha').innerText = fechaGenerada;
+        document.getElementById('displayNombre').innerText = nombre;
+        document.getElementById('numOperacion').innerText = "0" + randomOp;
+
+        // --- LÓGICA QR (MODIFICADO) ---
+        const destinoQR = localStorage.getItem('v_destino_qr');
+        if (destinoQR) {
+            // Si viene de QR, cambia el texto al destino (Yape) y oculta "Moneda soles"
+            document.getElementById('displayCuenta').innerText = destinoQR;
+            document.getElementById('displayMoneda').style.display = "none";
+        } else {
+            // Si es transferencia normal, pone la cuenta con los ****
+            document.getElementById('displayCuenta').innerText = "****" + cuentaFinal;
+        }
+
+        // --- GUARDAR EN HISTORIAL ---
+        let movimientos = JSON.parse(localStorage.getItem('bcp_movimientos')) || [];
+        let fechaCorta = ahora.getDate() + " " + meses[ahora.getMonth()]; // Ej: "28 febrero"
+
+        let nuevoMov = {
+            tipo: "transferencia", // Identificador para voucher.html
+            letra: "TR", 
+            titulo: "TRAN.CTAS.TERC.BM",
+            fecha: fechaCorta,
+            fechaCompleta: fechaGenerada, // Para el voucher detallado
+            monto: monto,
+            destinoNombre: nombre,
+            destinoNumero: cuentaFull, // Guardamos la cuenta completa, el voucher la cortará
+            numOperacion: "0" + randomOp
+        };
+
+        // Guardar solo si es una nueva carga (evita duplicados si el usuario recarga la página F5)
+        if(!sessionStorage.getItem('mov_guardado_trans_' + randomOp)){
+            movimientos.unshift(nuevoMov);
+            localStorage.setItem('bcp_movimientos', JSON.stringify(movimientos));
+            sessionStorage.setItem('mov_guardado_trans_' + randomOp, 'true'); 
+        }
+        // -------------------------------------
+
+        // --- LA MAGIA: FUNCIONES DE DESCARGAR Y COMPARTIR ---
+        
+        function prepararParaFoto(esParaFoto) {
+            const botonesSuperior = document.querySelector('.acciones');
+            const btnInferior = document.querySelector('.btn-otra');
+            const linkInferior = document.querySelector('.link-inicio');
+            
+            if (esParaFoto) {
+                botonesSuperior.style.display = 'none';
+                btnInferior.style.display = 'none';
+                linkInferior.style.display = 'none';
+            } else {
+                botonesSuperior.style.display = 'flex';
+                btnInferior.style.display = 'block';
+                linkInferior.style.display = 'inline';
+            }
+        }
+
+        function descargarVoucher() {
+            prepararParaFoto(true); 
+            
+            setTimeout(() => {
+                html2canvas(document.body, { backgroundColor: '#002a80', scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    let nombreLimpio = nombre.replace(/[^a-zA-Z0-9]/g, "_");
+                    link.download = `Transferencia_${nombreLimpio}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    prepararParaFoto(false); 
+                });
+            }, 150); 
+        }
+
+        function compartirVoucher() {
+            prepararParaFoto(true);
+
+            setTimeout(() => {
+                html2canvas(document.body, { backgroundColor: '#002a80', scale: 2 }).then(canvas => {
+                    canvas.toBlob(blob => {
+                        let nombreLimpio = nombre.replace(/[^a-zA-Z0-9]/g, "_");
+                        const file = new File([blob], `Transferencia_${nombreLimpio}.png`, { type: 'image/png' });
+                        
+                        if (navigator.share) {
+                            navigator.share({
+                                title: `Transferencia a ${nombre}`,
+                                files: [file]
+                            }).then(() => {
+                                prepararParaFoto(false);
+                            }).catch(err => {
+                                console.log('Error al compartir:', err);
+                                prepararParaFoto(false);
+                            });
+                        } else {
+                            alert('Tu navegador no soporta la función de compartir directo.');
+                            prepararParaFoto(false);
+                        }
+                    });
+                });
+            }, 150);
+        }
+    </script>
+</body>
+</html>

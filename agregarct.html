@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Contacto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Colores Oficiales Yape */
+            --bg-color: #f4f5f7;
+            --card-color: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent-purple: #742284;
+            --accent-teal: #00BFA5;
+            --border-color: #e0e0e0;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-primary); }
+        .container { max-width: 480px; margin: 0 auto; min-height: 100vh; padding: 20px; display: flex; flex-direction: column; background-color: var(--bg-color); }
+        
+        /* --- Header Estilo Yape --- */
+        .header-container { 
+            margin: -20px -20px 20px -20px; 
+            padding: 20px; 
+            background-color: var(--accent-purple); 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .back-icon { font-size: 20px; color: white; padding: 10px; cursor: pointer; transition: 0.2s; }
+        .back-icon:active { opacity: 0.7; }
+        .header-title { font-size: 18px; font-weight: 600; margin-left: 10px; color: white; }
+
+        .form-group { margin-bottom: 25px; }
+        .label { font-size: 13px; color: var(--accent-purple); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; display: block; letter-spacing: 0.5px; }
+        
+        /* Input con diseño Yape */
+        .input-card {
+            background-color: var(--card-color); border-radius: 12px; padding: 16px 20px;
+            border: 1px solid var(--border-color); display: flex; align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.3s ease;
+        }
+        .input-card:focus-within { border-color: var(--accent-teal); box-shadow: 0 2px 8px rgba(0, 191, 165, 0.2); }
+        
+        .input-field {
+            background: transparent; border: none; color: var(--text-primary); width: 100%;
+            font-size: 16px; font-weight: 500; outline: none; font-family: inherit;
+        }
+        .input-field::placeholder { color: #999; font-weight: 400; }
+        
+        /* Estilos específicos para el Select */
+        select.input-field {
+            -webkit-appearance: none; appearance: none; background-color: transparent; cursor: pointer;
+        }
+        select.input-field option {
+            background-color: var(--card-color); color: var(--text-primary);
+        }
+
+        .input-icon { color: var(--accent-purple); font-size: 20px; margin-right: 15px; width: 24px; text-align: center; opacity: 0.9; }
+
+        /* Botón Guardar Yape */
+        .btn-save {
+            margin-top: auto; background-color: var(--accent-teal);
+            color: white; padding: 18px; border-radius: 30px; border: none; width: 100%;
+            font-size: 17px; font-weight: 700; cursor: pointer; margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 191, 165, 0.3); transition: transform 0.1s, background-color 0.2s;
+        }
+        .btn-save:active { transform: scale(0.97); background-color: #00a892; }
+
+        /* --- ESTILOS DE TU ANIMACIÓN (PACMAN) --- */
+        .custom-loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 9999;
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; backdrop-filter: blur(4px);
+        }
+
+        .loader { width: 8em; height: 8em; }
+        .loader__eye1, .loader__eye2, .loader__mouth1, .loader__mouth2 { animation: eye1 3s ease-in-out infinite; }
+        .loader__eye1, .loader__eye2 { transform-origin: 64px 64px; }
+        .loader__eye2 { animation-name: eye2; }
+        .loader__mouth1 { animation-name: mouth1; }
+        .loader__mouth2 { animation-name: mouth2; visibility: hidden; }
+
+        @keyframes eye1 {
+            from { transform: rotate(-260deg) translate(0, -56px); }
+            50%, 60% { animation-timing-function: cubic-bezier(0.17, 0, 0.58, 1); transform: rotate(-40deg) translate(0, -56px) scale(1); }
+            to { transform: rotate(225deg) translate(0, -56px) scale(0.35); }
+        }
+        @keyframes eye2 {
+            from { transform: rotate(-260deg) translate(0, -56px); }
+            50% { transform: rotate(40deg) translate(0, -56px) rotate(-40deg) scale(1); }
+            52.5% { transform: rotate(40deg) translate(0, -56px) rotate(-40deg) scale(1, 0); }
+            55%, 70% { animation-timing-function: cubic-bezier(0, 0, 0.28, 1); transform: rotate(40deg) translate(0, -56px) rotate(-40deg) scale(1); }
+            to { transform: rotate(150deg) translate(0, -56px) scale(0.4); }
+        }
+        @keyframes mouth1 {
+            from { animation-timing-function: ease-in; stroke-dasharray: 0 351.86; stroke-dashoffset: 0; }
+            25% { animation-timing-function: ease-out; stroke-dasharray: 175.93 351.86; stroke-dashoffset: 0; }
+            50% { animation-timing-function: steps(1, start); stroke-dasharray: 175.93 351.86; stroke-dashoffset: -175.93; visibility: visible; }
+            75%, to { visibility: hidden; }
+        }
+        @keyframes mouth2 {
+            from { animation-timing-function: steps(1, end); visibility: hidden; }
+            50% { animation-timing-function: ease-in-out; visibility: visible; stroke-dashoffset: 0; }
+            to { stroke-dashoffset: -351.86; }
+        }
+
+        /* --- NOTIFICACIÓN PERSONALIZADA (TOAST) --- */
+        .toast {
+            visibility: hidden; min-width: 250px; margin-left: -125px;
+            background-color: #333; color: #fff; text-align: center;
+            border-radius: 50px; padding: 16px; position: fixed;
+            z-index: 10000; left: 50%; bottom: 30px; font-size: 14px; font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        .toast.success { background-color: var(--accent-teal); color: white; }
+        .toast.error { background-color: #ff5252; color: white; }
+
+    </style>
+</head>
+<body>
+    <div class="custom-loader-overlay" id="pacmanLoader">
+        <svg height="108px" width="108px" viewBox="0 0 128 128" class="loader">
+            <defs>
+              <clipPath id="loader-eyes">
+                <circle transform="rotate(-40,64,64) translate(0,-56)" r="8" cy="64" cx="64" class="loader__eye1"></circle>
+                <circle transform="rotate(40,64,64) translate(0,-56)" r="8" cy="64" cx="64" class="loader__eye2"></circle>
+              </clipPath>
+              <linearGradient y2="1" x2="0" y1="0" x1="0" id="loader-grad">
+                <stop stop-color="#000" offset="0%"></stop>
+                <stop stop-color="#fff" offset="100%"></stop>
+              </linearGradient>
+              <mask id="loader-mask">
+                <rect fill="url(#loader-grad)" height="128" width="128" y="0" x="0"></rect>
+              </mask>
+            </defs>
+            <g stroke-dasharray="175.93 351.86" stroke-width="12" stroke-linecap="round">
+              <g>
+                <rect clip-path="url(#loader-eyes)" height="64" width="128" fill="hsl(193,90%,50%)"></rect>
+                <g stroke="hsl(193,90%,50%)" fill="none">
+                  <circle transform="rotate(180,64,64)" r="56" cy="64" cx="64" class="loader__mouth1"></circle>
+                  <circle transform="rotate(0,64,64)" r="56" cy="64" cx="64" class="loader__mouth2"></circle>
+                </g>
+              </g>
+              <g mask="url(#loader-mask)">
+                <rect clip-path="url(#loader-eyes)" height="64" width="128" fill="hsl(223,90%,50%)"></rect>
+                <g stroke="hsl(223,90%,50%)" fill="none">
+                  <circle transform="rotate(180,64,64)" r="56" cy="64" cx="64" class="loader__mouth1"></circle>
+                  <circle transform="rotate(0,64,64)" r="56" cy="64" cx="64" class="loader__mouth2"></circle>
+                </g>
+              </g>
+            </g>
+        </svg>
+        <p style="margin-top:20px; font-weight:600; color:white;">Guardando en la Nube...</p>
+    </div>
+
+    <div id="toast" class="toast">Mensaje aquí</div>
+
+    <div class="container">
+        <div class="header-container">
+            <i class="fa-solid fa-arrow-left back-icon" onclick="window.location.href='opciones.html'"></i>
+            <span class="header-title">Nuevo Contacto</span>
+        </div>
+
+        <div class="form-group">
+            <label class="label">Número de Celular</label>
+            <div class="input-card">
+                <i class="fa-solid fa-mobile-screen input-icon"></i>
+                <input type="tel" id="contactNumber" class="input-field" placeholder="999 999 999" maxlength="9" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">Nombre y Apellido</label>
+            <div class="input-card">
+                <i class="fa-regular fa-user input-icon"></i>
+                <input type="text" id="contactName" class="input-field" placeholder="Ej. Juan Pérez">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">Destino</label>
+            <div class="input-card">
+                <i class="fa-solid fa-building-columns input-icon"></i>
+                <select id="contactDestino" class="input-field">
+                    <option value="Yape">Yape</option>
+                    <option value="Plin">Plin</option>
+                    <option value="Bim">Bim</option>
+                    <option value="Tunki">Tunki</option>
+                    <option value="Agora / Oh!">Agora / Oh!</option>
+                    <option value="BCP">BCP</option>
+                    <option value="BBVA">BBVA</option>
+                    <option value="Interbank">Interbank</option>
+                    <option value="Financiera Efectiva">Financiera Efectiva</option>
+                    <option value="Dale">Dale</option>
+                    <option value="IziPay">IziPay</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-save" id="btnGuardar">Guardar</button>
+    </div>
+
+    <script>
+        window.showToast = function(message, type) {
+            var x = document.getElementById("toast");
+            x.textContent = message;
+            x.className = "toast show " + type; 
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+
+        document.getElementById('btnGuardar').addEventListener('click', function() {
+            const numero = document.getElementById('contactNumber').value;
+            const nombre = document.getElementById('contactName').value;
+            const destino = document.getElementById('contactDestino').value;
+            const loader = document.getElementById('pacmanLoader');
+
+            if(numero.length !== 9 || nombre.trim() === "") {
+                showToast("Datos Erroneos", "error"); 
+                return;
+            }
+
+            loader.style.display = 'flex';
+
+            setTimeout(() => {
+                loader.style.display = 'none';
+                showToast("¡Guardado correctamente!", "success");
+                setTimeout(() => {
+                    window.location.href = 'opciones.html';
+                }, 1500);
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

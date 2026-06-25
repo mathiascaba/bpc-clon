@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar QR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <style>
+        :root {
+            /* Colores Oficiales Yape (Mantenidos de tu otra app) */
+            --bg-color: #f4f5f7;
+            --card-color: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent-purple: #742284;
+            --accent-teal: #00BFA5;
+            --border-color: #e0e0e0;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-primary); }
+        .container { max-width: 480px; margin: 0 auto; min-height: 100vh; padding: 20px; display: flex; flex-direction: column; background-color: var(--bg-color); }
+        
+        /* --- Header Estilo Yape --- */
+        .header-container { 
+            margin: -20px -20px 20px -20px; 
+            padding: 20px; 
+            background-color: var(--accent-purple); 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .back-icon { font-size: 20px; color: white; padding: 10px; cursor: pointer; transition: 0.2s; }
+        .back-icon:active { opacity: 0.7; }
+        .header-title { font-size: 18px; font-weight: 600; margin-left: 10px; color: white; }
+
+        /* --- Zona de Subida de Imagen --- */
+        .upload-area {
+            background-color: var(--card-color); border: 2px dashed #b0b0b0; border-radius: 16px;
+            height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 25px; cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .upload-area:hover { border-color: var(--accent-purple); background-color: rgba(116, 34, 132, 0.02); }
+        
+        .upload-icon { font-size: 40px; color: var(--accent-purple); margin-bottom: 10px; opacity: 0.8;}
+        .upload-text { font-size: 14px; color: var(--text-secondary); font-weight: 500;}
+        
+        #previewImg {
+            width: 100%; height: 100%; object-fit: contain; position: absolute; top:0; left:0; display: none; background: transparent;
+        }
+
+        /* --- Formulario --- */
+        .form-group { margin-bottom: 25px; }
+        .label { font-size: 13px; color: var(--accent-purple); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; display: block; letter-spacing: 0.5px; }
+        
+        .input-card {
+            background-color: var(--card-color); border-radius: 12px; padding: 16px 20px;
+            border: 1px solid var(--border-color); display: flex; align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.3s ease;
+        }
+        .input-card:focus-within { border-color: var(--accent-teal); box-shadow: 0 2px 8px rgba(0, 191, 165, 0.2); }
+        
+        .input-field {
+            background: transparent; border: none; color: var(--text-primary); width: 100%;
+            font-size: 16px; font-weight: 500; outline: none; font-family: inherit;
+        }
+        .input-field::placeholder { color: #999; font-weight: 400; }
+        
+        /* Select ajustado al nuevo tema */
+        select.input-field {
+            -webkit-appearance: none; appearance: none; background-color: transparent;
+        }
+        select.input-field option {
+            background-color: var(--card-color); color: var(--text-primary);
+        }
+
+        .input-icon { color: var(--accent-purple); font-size: 20px; margin-right: 15px; width: 24px; text-align: center; opacity: 0.9; }
+
+        /* --- Botón Guardar Yape --- */
+        .btn-save {
+            margin-top: auto; background-color: var(--accent-teal);
+            color: white; padding: 18px; border-radius: 30px; border: none; width: 100%;
+            font-size: 17px; font-weight: 700; cursor: pointer; margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 191, 165, 0.3); transition: transform 0.1s, background-color 0.2s;
+        }
+        .btn-save:active { transform: scale(0.97); background-color: #00a892; }
+
+        /* --- ESTILOS DE TU ANIMACIÓN (PACMAN) --- */
+        .custom-loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 9999;
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; backdrop-filter: blur(4px);
+        }
+
+        .loader { width: 8em; height: 8em; }
+        .loader__eye1, .loader__eye2, .loader__mouth1, .loader__mouth2 { animation: eye1 3s ease-in-out infinite; }
+        .loader__eye1, .loader__eye2 { transform-origin: 64px 64px; }
+        .loader__eye2 { animation-name: eye2; }
+        .loader__mouth1 { animation-name: mouth1; }
+        .loader__mouth2 { animation-name: mouth2; visibility: hidden; }
+
+        @keyframes eye1 {
+            from { transform: rotate(-260deg) translate(0, -56px); }
+            50%, 60% { animation-timing-function: cubic-bezier(0.17, 0, 0.58, 1); transform: rotate(-40deg) translate(0, -56px) scale(1); }
+            to { transform: rotate(225deg) translate(0, -56px) scale(0.35); }
+        }
+        @keyframes eye2 {
+            from { transform: rotate(-260deg) translate(0, -56px); }
+            50% { transform: rotate(40deg) translate(0, -56px) rotate(-40deg) scale(1); }
+            52.5% { transform: rotate(40deg) translate(0, -56px) rotate(-40deg) scale(1, 0); }
+            55%, 70% { animation-timing-function: cubic-bezier(0, 0, 0.28, 1); transform: rotate(40deg) translate(0, -56px) rotate(-40deg) scale(1); }
+            to { transform: rotate(150deg) translate(0, -56px) scale(0.4); }
+        }
+        @keyframes mouth1 {
+            from { animation-timing-function: ease-in; stroke-dasharray: 0 351.86; stroke-dashoffset: 0; }
+            25% { animation-timing-function: ease-out; stroke-dasharray: 175.93 351.86; stroke-dashoffset: 0; }
+            50% { animation-timing-function: steps(1, start); stroke-dasharray: 175.93 351.86; stroke-dashoffset: -175.93; visibility: visible; }
+            75%, to { visibility: hidden; }
+        }
+        @keyframes mouth2 {
+            from { animation-timing-function: steps(1, end); visibility: hidden; }
+            50% { animation-timing-function: ease-in-out; visibility: visible; stroke-dashoffset: 0; }
+            to { stroke-dashoffset: -351.86; }
+        }
+
+        /* --- NOTIFICACIÓN PERSONALIZADA (TOAST) --- */
+        .toast {
+            visibility: hidden; min-width: 250px; margin-left: -125px;
+            background-color: #333; color: #fff; text-align: center;
+            border-radius: 50px; padding: 16px; position: fixed;
+            z-index: 10000; left: 50%; bottom: 30px; font-size: 14px; font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        .toast.success { background-color: var(--accent-teal); color: white; }
+        .toast.error { background-color: #ff5252; color: white; }
+
+    </style>
+</head>
+<body>
+    <div class="custom-loader-overlay" id="pacmanLoader">
+        <svg height="108px" width="108px" viewBox="0 0 128 128" class="loader">
+            <defs>
+              <clipPath id="loader-eyes">
+                <circle transform="rotate(-40,64,64) translate(0,-56)" r="8" cy="64" cx="64" class="loader__eye1"></circle>
+                <circle transform="rotate(40,64,64) translate(0,-56)" r="8" cy="64" cx="64" class="loader__eye2"></circle>
+              </clipPath>
+              <linearGradient y2="1" x2="0" y1="0" x1="0" id="loader-grad">
+                <stop stop-color="#000" offset="0%"></stop>
+                <stop stop-color="#fff" offset="100%"></stop>
+              </linearGradient>
+              <mask id="loader-mask">
+                <rect fill="url(#loader-grad)" height="128" width="128" y="0" x="0"></rect>
+              </mask>
+            </defs>
+            <g stroke-dasharray="175.93 351.86" stroke-width="12" stroke-linecap="round">
+              <g>
+                <rect clip-path="url(#loader-eyes)" height="64" width="128" fill="hsl(193,90%,50%)"></rect>
+                <g stroke="hsl(193,90%,50%)" fill="none">
+                  <circle transform="rotate(180,64,64)" r="56" cy="64" cx="64" class="loader__mouth1"></circle>
+                  <circle transform="rotate(0,64,64)" r="56" cy="64" cx="64" class="loader__mouth2"></circle>
+                </g>
+              </g>
+              <g mask="url(#loader-mask)">
+                <rect clip-path="url(#loader-eyes)" height="64" width="128" fill="hsl(223,90%,50%)"></rect>
+                <g stroke="hsl(223,90%,50%)" fill="none">
+                  <circle transform="rotate(180,64,64)" r="56" cy="64" cx="64" class="loader__mouth1"></circle>
+                  <circle transform="rotate(0,64,64)" r="56" cy="64" cx="64" class="loader__mouth2"></circle>
+                </g>
+              </g>
+            </g>
+        </svg>
+        <p style="margin-top:20px; font-weight:600; color:white;">Guardando QR en la Nube...</p>
+    </div>
+
+    <div id="toast" class="toast">Mensaje aquí</div>
+
+    <div class="container">
+        <div class="header-container">
+            <i class="fa-solid fa-arrow-left back-icon" onclick="window.location.href='opciones.html'"></i>
+            <span class="header-title">Nuevo QR</span>
+        </div>
+
+        <label class="label">Imagen del QR</label>
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+            <div class="upload-text">Toca para subir imagen</div>
+            <img id="previewImg" src="" alt="QR Preview">
+            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="previewFile()">
+        </div>
+
+        <div class="form-group">
+            <label class="label">Nombre del Titular / Negocio</label>
+            <div class="input-card">
+                <i class="fa-solid fa-store input-icon"></i>
+                <input type="text" id="qrName" class="input-field" placeholder="Ej: Juan Perez">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="label">Destino</label>
+            <div class="input-card">
+                <i class="fa-solid fa-building-columns input-icon"></i>
+                <select id="qrDestino" class="input-field">
+                    <option value="Yape">Yape</option>
+                    <option value="Plin">Plin</option>
+                    <option value="Bim">Bim</option>
+                    <option value="Tunki">Tunki</option>
+                    <option value="Agora / Oh!">Agora / Oh!</option>
+                    <option value="BCP">BCP</option>
+                    <option value="BBVA">BBVA</option>
+                    <option value="Interbank">Interbank</option>
+                    <option value="Financiera Efectiva">Financiera Efectiva</option>
+                    <option value="Dale">Dale</option>
+                    <option value="IziPay">IziPay</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-save" id="btnGuardarQR">Guardar</button>
+    </div>
+
+    <script>
+        // Variable global para guardar el código leído
+        let scannedQrCode = null;
+
+        window.showToast = function(message, type) {
+            var x = document.getElementById("toast");
+            x.textContent = message;
+            x.className = "toast show " + type;
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+
+        // --- FUNCIÓN PARA PREVISUALIZAR Y LEER EL QR ---
+        window.previewFile = function() {
+            const preview = document.getElementById('previewImg');
+            const file = document.querySelector('input[type=file]').files[0];
+            const reader = new FileReader();
+
+            reader.addEventListener("load", function () {
+                // 1. Mostrar imagen
+                preview.src = reader.result;
+                preview.style.display = 'block';
+
+                // 2. Intentar leer el QR invisiblemente
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0, img.width, img.height);
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // Usar librería jsQR
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        scannedQrCode = code.data;
+                        console.log("QR Leído:", scannedQrCode);
+                        showToast("Código QR detectado correctamente", "success");
+                    } else {
+                        scannedQrCode = null;
+                        showToast("No se detectó ningún QR en la imagen", "error");
+                    }
+                };
+                img.src = reader.result;
+
+            }, false);
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.getElementById('btnGuardarQR').addEventListener('click', function() {
+            const name = document.getElementById('qrName').value;
+            const destino = document.getElementById('qrDestino').value;
+            const imgCheck = document.getElementById('previewImg').src;
+            const loader = document.getElementById('pacmanLoader');
+
+            if(!imgCheck || imgCheck === "" || document.getElementById('fileInput').files.length === 0) {
+                showToast("Falta subir la imagen", "error");
+                return;
+            }
+            if(name.trim() === "") {
+                showToast("Falta el nombre", "error");
+                return;
+            }
+            if(!scannedQrCode) {
+                showToast("La imagen no contiene un QR válido", "error");
+                return;
+            }
+
+            loader.style.display = 'flex';
+
+            setTimeout(() => {
+                loader.style.display = 'none';
+                showToast("¡QR Guardado correctamente!", "success");
+                setTimeout(() => {
+                    window.location.href = 'opciones.html';
+                }, 1500);
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Datos de Cuenta - BCP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bcp-blue: #002A8D;
+            --bcp-orange: #FF7800;
+            --bg-gray: #f4f6f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
+
+        body {
+            background-color: var(--bg-gray);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* Cabecera BCP */
+        .top-header {
+            width: 100%;
+            height: 60px;
+            background-color: var(--bcp-blue);
+            border-bottom: 4px solid var(--bcp-orange);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        /* Contenedor Principal */
+        .form-card {
+            background: white;
+            width: 90%;
+            max-width: 360px;
+            border-radius: 16px;
+            padding: 30px 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            margin-top: 100px; /* Para que baje debajo de la cabecera */
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos de los inputs */
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            color: var(--bcp-blue);
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #333;
+            background-color: #f9f9f9;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--bcp-orange);
+            background-color: white;
+        }
+
+        /* Diseño especial para el saldo (S/) */
+        .balance-wrapper {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .input-balance {
+            padding-left: 40px; /* Le da espacio al S/ para que no se pise con los números */
+        }
+
+        /* ESTILOS DEL INTERRUPTOR BOT */
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        
+        .toggle-text {
+            color: #333;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            width: 50px;
+            height: 28px;
+            background: #ccc;
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: var(--bcp-orange);
+        }
+
+        .toggle-knob {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-knob {
+            left: 25px;
+        }
+
+        /* Botón Naranja BCP */
+        .btn-bcp {
+            background-color: var(--bcp-orange);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin-top: 10px;
+        }
+
+        .btn-bcp:active { transform: scale(0.97); }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <a href="opciones.html" class="back-btn">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <div class="header-title">Datos de Cuenta</div>
+    </div>
+
+    <div class="form-card">
+        
+        <div class="input-group">
+            <label class="input-label">Nombre del Titular</label>
+            <input type="text" id="editName" class="input-field" value="Maikol Esleiter">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Saldo Disponible</label>
+            <div class="balance-wrapper">
+                <span class="currency-symbol">S/</span>
+                <input type="number" id="editBalance" class="input-field input-balance" value="1200.00" step="0.01">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Búsqueda Titular</label>
+            <div class="toggle-container" onclick="toggleBot()">
+                <span class="toggle-text" id="botStatusText">Desactivado</span>
+                <div class="toggle-switch" id="botToggleBtn">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-bcp" onclick="saveData()">Guardar Cambios</button>
+
+    </div>
+
+    <script>
+        let isBotActive = false;
+
+        // Al cargar la página, recuperamos los datos guardados si existen
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedName = localStorage.getItem("userName");
+            const savedBalance = localStorage.getItem("userBalance");
+            const savedBotStatus = localStorage.getItem("bcp_bot_telegram_activo"); // Variable específica para BCP
+
+            if (savedName) {
+                document.getElementById("editName").value = savedName;
+            }
+            if (savedBalance) {
+                document.getElementById("editBalance").value = savedBalance;
+            }
+            if (savedBotStatus === "true") {
+                isBotActive = true;
+                updateBotUI();
+            }
+        });
+
+        // Función visual para encender/apagar
+        function toggleBot() {
+            isBotActive = !isBotActive;
+            updateBotUI();
+        }
+
+        // Función para actualizar los colores y texto del interruptor
+        function updateBotUI() {
+            const btn = document.getElementById("botToggleBtn");
+            const txt = document.getElementById("botStatusText");
+            if (isBotActive) {
+                btn.classList.add("active");
+                txt.textContent = "Activado";
+                txt.style.color = "var(--bcp-orange)";
+                txt.style.fontWeight = "700";
+            } else {
+                btn.classList.remove("active");
+                txt.textContent = "Desactivado";
+                txt.style.color = "#333";
+                txt.style.fontWeight = "500";
+            }
+        }
+
+        // Función para guardar en memoria y volver
+        function saveData() {
+            const nameInput = document.getElementById("editName").value;
+            const balanceInput = document.getElementById("editBalance").value;
+
+            // Guardamos en LocalStorage
+            localStorage.setItem("userName", nameInput);
+            localStorage.setItem("userBalance", balanceInput);
+            
+            // Guardamos estado del Bot
+            localStorage.setItem("bcp_bot_telegram_activo", isBotActive);
+
+            // Redirigimos al home principal de la app
+            window.location.href = "inicio.html";
+        }
+    </script>
+    
+</body>
+</html>

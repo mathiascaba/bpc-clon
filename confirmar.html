@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Confirmar</title>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* --- PANTALLA DE PROCESAMIENTO (AZUL) --- */
+        #processing-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #002a80; /* Fondo Azul BCP */
+            z-index: 9999;
+            display: none; /* Oculto por defecto */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .processing-loader-container {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* Anillo de fondo (track) oscuro */
+        .processing-track {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid rgba(0, 0, 0, 0.2); 
+            box-sizing: border-box;
+        }
+
+        /* Línea naranja giratoria */
+        .processing-spinner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid transparent;
+            border-top-color: #ff7800; /* Naranja */
+            box-sizing: border-box;
+            animation: spin 1s linear infinite;
+        }
+
+        .processing-icon {
+            width: 45px; 
+            height: 45px; 
+            z-index: 2;
+        }
+
+        .processing-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+
+        /* --- ESTILOS DE LA PÁGINA NORMAL --- */
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #e0e0e0; 
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 400;
+            color: #444;
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .icon-btn svg {
+            width: 30px;
+            height: 30px;
+            fill: #444;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .main-content {
+            padding: 20px 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* MONTO GRANDE */
+        .amount-display {
+            text-align: center;
+            margin-top: 25px;
+            margin-bottom: 45px;
+        }
+
+        .amount-value {
+            font-size: 56px;
+            color: #002a80;
+            font-weight: 500;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .amount-label {
+            font-size: 19px;
+            color: #888;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        /* LISTA DE DETALLES */
+        .details-list {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 22px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 10px;
+        }
+
+        .detail-label {
+            font-size: 19px;
+            color: #000;
+            font-weight: 400;
+            width: 35%;
+        }
+
+        .detail-value {
+            text-align: right;
+            width: 65%;
+            font-size: 19px;
+            color: #000;
+        }
+
+        .detail-value strong {
+            display: block;
+            font-weight: 600;
+            font-size: 19px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value span {
+            display: block;
+            font-size: 17px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        /* INPUT DESCRIPCIÓN */
+        .description-container {
+            margin-top: 5px;
+        }
+
+        .description-input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 18px;
+            font-family: inherit;
+            box-sizing: border-box; 
+            color: #333;
+            outline: none;
+        }
+
+        .description-input::placeholder {
+            color: #888;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 15px;
+            color: #888;
+            margin-top: 6px;
+        }
+
+        /* BOTÓN CONFIRMAR */
+        .footer-container {
+            margin-top: auto;
+            padding-bottom: 25px;
+            text-align: center;
+        }
+
+        .btn-confirmar {
+            width: 100%;
+            background-color: #ff7800;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 18px 0;
+            font-size: 22px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-confirmar:active {
+            background-color: #e06900;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="processing-screen">
+        <div class="processing-loader-container">
+            <div class="processing-track"></div>
+            <div class="processing-spinner"></div>
+            <img src="img/lg_favicon_white.svg" alt="Icono" class="processing-icon">
+        </div>
+        <div class="processing-text">Procesando tu solicitud...</div>
+    </div>
+
+    <header class="header">
+        <button class="icon-btn" onclick="window.history.back()">
+            <svg viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+        </button>
+        <div class="header-title">Confirmar</div>
+        <button class="icon-btn" onclick="window.location.href='inicio.html'">
+            <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+        </button>
+    </header>
+
+    <div class="main-content">
+        <div class="amount-display">
+            <div class="amount-value" id="displayMonto">S/ 0.00</div>
+            <div class="amount-label">Monto total</div>
+        </div>
+
+        <div class="details-list">
+            <div class="detail-row">
+                <div class="detail-label">Enviado a</div>
+                <div class="detail-value">
+                    <strong id="displayNombre">Nombre aca</strong>
+                    <span id="displayCuenta">****0000</span>
+                    <span id="displayMoneda">Moneda soles</span>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Desde</div>
+                <div class="detail-value">
+                    <strong>Cuenta Digital Soles</strong>
+                    <span>7809</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="description-container">
+            <input type="text" class="description-input" id="descInput" placeholder="Descripción del pago (Opcional)" maxlength="100">
+            <div class="char-counter" id="charCounter">0 / 100</div>
+        </div>
+
+        <div class="footer-container">
+            <button class="btn-confirmar" onclick="finalizarOperacion()">Confirmar</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // RECUPERAR DATOS
+            const monto = localStorage.getItem('v_monto_transferir') || "0.00";
+            const nombre = localStorage.getItem('v_nombre_destino') || "Nombre desconocido";
+            const cuenta = localStorage.getItem('v_cuenta') || "0000";
+
+            // FORMATEAR MONTO
+            let montoFormateado = parseFloat(monto).toFixed(2);
+
+            // ULTIMOS 4 DIGITOS
+            let ultimosDigitos = "0000";
+            if (cuenta.length >= 4) {
+                ultimosDigitos = cuenta.slice(-4);
+            } else if (cuenta.length > 0) {
+                ultimosDigitos = cuenta;
+            }
+
+            // MOSTRAR EN PANTALLA
+            document.getElementById('displayMonto').innerText = "S/ " + montoFormateado;
+            document.getElementById('displayNombre').innerText = nombre;
+            
+            document.getElementById('displayCuenta').innerText = "****" + ultimosDigitos;
+
+            // CONTADOR CARACTERES
+            const inputDesc = document.getElementById('descInput');
+            const counter = document.getElementById('charCounter');
+            inputDesc.addEventListener('input', function() {
+                counter.innerText = this.value.length + " / 100";
+            });
+        });
+        
+        window.finalizarOperacion = function() {
+            // --- LÓGICA: DESCONTAR SALDO ---
+            const saldoActual = localStorage.getItem("userBalance") || "1200.00";
+            const montoTransferir = localStorage.getItem('v_monto_transferir') || "0.00";
+            
+            // Convertimos a números matemáticos para poder restar
+            const saldoNumerico = parseFloat(saldoActual.replace(/,/g, ''));
+            const montoNumerico = parseFloat(montoTransferir);
+            
+            // Hacemos la resta
+            let nuevoSaldo = saldoNumerico - montoNumerico;
+            
+            // Evitamos que el saldo sea negativo (por si acaso)
+            if (nuevoSaldo < 0) nuevoSaldo = 0;
+            
+            // Guardamos el nuevo saldo en la memoria
+            localStorage.setItem("userBalance", nuevoSaldo.toFixed(2));
+            // ------------------------------------
+
+            // 1. GUARDAR DATOS BÁSICOS
+            const ahora = new Date();
+            const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const fechaTexto = ahora.toLocaleDateString('es-ES', opcionesFecha); 
+            
+            let horas = ahora.getHours();
+            let minutos = ahora.getMinutes();
+            const ampm = horas >= 12 ? 'pm' : 'am';
+            horas = horas % 12;
+            horas = horas ? horas : 12; 
+            minutos = minutos < 10 ? '0'+minutos : minutos;
+            const horaTexto = horas + ':' + minutos + ampm;
+
+            let fechaFinal = fechaTexto + " - " + horaTexto;
+            fechaFinal = fechaFinal.charAt(0).toUpperCase() + fechaFinal.slice(1);
+
+            localStorage.setItem('v_fecha', fechaFinal);
+            localStorage.setItem('v_monto', localStorage.getItem('v_monto_transferir'));
+            localStorage.setItem('v_nombre', document.getElementById('displayNombre').innerText);
+            localStorage.setItem('v_cuenta', localStorage.getItem('v_cuenta')); 
+
+            // Guardar inteligentemente la entidad del QR (ej. Yape) para la pantalla final si es que se detectó
+            const cuentaTextoActual = document.getElementById('displayCuenta').innerText;
+            if (!cuentaTextoActual.includes("****")) {
+                localStorage.setItem('v_destino_qr', cuentaTextoActual);
+            } else {
+                localStorage.removeItem('v_destino_qr'); // Limpiar por si era una transferencia normal
+            }
+
+            // 2. MOSTRAR PANTALLA AZUL
+            document.getElementById('processing-screen').style.display = 'flex';
+
+            // 3. ESPERAR 3 SEGUNDOS Y REDIRIGIR A EXITO.HTML
+            setTimeout(function() {
+                window.location.href = 'exito.html';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

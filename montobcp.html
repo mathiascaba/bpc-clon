@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Enviar a</title>
+    <style>
+        /* --- NUEVO: EVITAR CUADROS AZULES DE SELECCIÓN EN MÓVILES --- */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        input:focus, button:focus, a:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- PANTALLA DE CARGA --- */
+        #loader-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #002a80;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-icon { width: 40px; height: 40px; z-index: 2; }
+
+        .spinner-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #ff7800;
+            animation: spin 1s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        #main-content {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .header-title {
+            font-size: 24px;
+            color: #444;
+            flex-grow: 1;
+            margin-left: 15px;
+            font-weight: 400;
+        }
+
+        .icon-btn { background: none; border: none; cursor: pointer; padding: 5px; }
+        .icon-btn svg { width: 30px; height: 30px; fill: #555; }
+
+        /* DATOS DEL DESTINATARIO */
+        .recipient-section {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-circle {
+            width: 65px;
+            height: 65px;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 50%;
+            font-size: 28px;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        /* NOMBRE EDITABLE */
+        .recipient-name-input {
+            font-size: 26px;
+            font-weight: 500;
+            color: #000;
+            margin-bottom: 8px;
+            border: none;
+            text-align: center;
+            width: 90%;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+        }
+        .recipient-name-input::placeholder { color: #aaa; }
+
+        /* CUENTA */
+        .recipient-account {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px; 
+        }
+
+        .recipient-currency {
+            font-size: 16px;
+            color: #888;
+        }
+
+        /* SECCIÓN MONTO */
+        .amount-section { padding: 35px 25px; }
+
+        .label-blue {
+            color: #002a80;
+            font-weight: 600;
+            font-size: 19px;
+            margin-bottom: 20px;
+        }
+
+        .currency-toggle { margin-bottom: 15px; }
+        .currency-toggle img { height: 40px; width: auto; }
+
+        .input-amount-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .currency-symbol {
+            font-size: 60px;
+            color: #002a80;
+            margin-right: 10px;
+            font-weight: 400;
+        }
+
+        .amount-input {
+            border: none;
+            font-size: 60px;
+            color: #ccc;
+            width: 100%;
+            outline: none;
+            font-weight: 300;
+            background: transparent;
+            font-family: inherit;
+        }
+        .amount-input.active-color { color: #002a80; }
+
+        /* SECCIÓN DESDE */
+        .source-section { padding: 0 25px; }
+
+        .source-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .source-info strong {
+            display: block;
+            font-size: 18px;
+            color: #000;
+            margin-bottom: 5px;
+        }
+        .source-info span { font-size: 16px; color: #666; }
+        .source-balance {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        /* BOTÓN INFERIOR */
+        .footer-container {
+            margin-top: auto;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .btn-siguiente {
+            width: 100%;
+            background-color: #d8d8d8;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 20px 0;
+            font-size: 22px;
+            font-weight: 500;
+            cursor: default;
+            transition: background-color 0.3s;
+        }
+        .btn-siguiente.active {
+            background-color: #ff7800;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="loader-screen">
+        <div class="loader-container">
+            <div class="spinner-ring"></div>
+            <img src="img/lg_favicon_white.svg" alt="Cargando" class="loader-icon">
+        </div>
+    </div>
+
+    <div id="main-content">
+        
+        <header class="header">
+            <button class="icon-btn" onclick="window.history.back()">
+                <svg viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/></svg>
+            </button>
+            <div class="header-title">Enviar a</div>
+            <button class="icon-btn" onclick="window.location.href='inicio.html'">
+                <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
+            </button>
+        </header>
+
+        <div class="recipient-section">
+            <div class="avatar-circle" id="avatarInitial"></div>
+            
+            <input type="text" class="recipient-name-input" id="destNameInput" value="" placeholder="Ingresa nombre">
+            
+            <div class="recipient-account" id="destAccount">****0000</div>
+            
+            <div class="recipient-currency" id="destCurrency">Moneda soles</div>
+        </div>
+
+        <div class="amount-section">
+            <div class="label-blue">Moneda y monto</div>
+            
+            <div class="currency-toggle">
+                <img src="img/tipo-moneda.svg" alt="Soles/Dólares">
+            </div>
+
+            <div class="input-amount-container">
+                <span class="currency-symbol">S/</span>
+                <input type="number" id="amountInput" class="amount-input" placeholder="0.00" inputmode="decimal">
+            </div>
+        </div>
+
+        <div class="source-section">
+            <div class="label-blue">Desde</div>
+            <div class="source-card">
+                <div class="source-info">
+                    <strong>Cuenta Digital Soles</strong>
+                    <span>7809</span>
+                </div>
+                <div class="source-balance" id="myBalance">S/ 0.00</div>
+            </div>
+        </div>
+
+        <div class="footer-container">
+            <button id="btnNext" class="btn-siguiente">Siguiente</button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // 1. CARGA (LOADING)
+            setTimeout(function() {
+                document.getElementById('loader-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loader-screen').style.display = 'none';
+                    document.getElementById('main-content').style.opacity = '1';
+                    document.body.style.overflow = 'auto'; 
+                }, 500);
+            }, 1500); 
+
+            // 2. RECUPERAR SALDO
+            const savedBalance = localStorage.getItem("userBalance");
+            let saldoMostrar = "1,200.00"; 
+
+            if (savedBalance) {
+                 const val = parseFloat(savedBalance);
+                 if (!isNaN(val)) {
+                     saldoMostrar = val.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                 } else {
+                     saldoMostrar = savedBalance;
+                 }
+            }
+            document.getElementById('myBalance').innerText = "S/ " + saldoMostrar;
+
+            // 3. RECUPERAR CUENTA Y MASCARA
+            const cuentaGuardada = localStorage.getItem('v_cuenta'); 
+            let ultimosDigitos = "0000";
+
+            if (cuentaGuardada && cuentaGuardada.length > 0) {
+                if (cuentaGuardada.length >= 4) {
+                    ultimosDigitos = cuentaGuardada.slice(-4);
+                } else {
+                    ultimosDigitos = cuentaGuardada;
+                }
+            }
+            document.getElementById('destAccount').innerText = "****" + ultimosDigitos;
+
+            // 4. LÓGICA DEL AVATAR
+            const nameInput = document.getElementById('destNameInput');
+            const avatar = document.getElementById('avatarInitial');
+            const destAccountElement = document.getElementById('destAccount');
+            const destCurrencyElement = document.getElementById('destCurrency');
+
+            function updateAvatar() {
+                const val = nameInput.value.trim();
+                if (val.length > 0) {
+                    avatar.innerText = val.charAt(0).toUpperCase();
+                } else {
+                    avatar.innerText = "";
+                }
+            }
+            
+            updateAvatar();
+            nameInput.addEventListener('input', updateAvatar);
+
+            // 5. LÓGICA DE MONTO
+            const amountInput = document.getElementById('amountInput');
+            const btn = document.getElementById('btnNext');
+
+            amountInput.addEventListener('input', function() {
+                const val = parseFloat(this.value);
+                if (!isNaN(val) && this.value.length > 0) {
+                    btn.classList.add('active');
+                    this.classList.add('active-color');
+                    localStorage.setItem('v_monto_transferir', this.value);
+                } else {
+                    btn.classList.remove('active');
+                    this.classList.remove('active-color');
+                }
+            });
+            
+            // 6. CLICK EN SIGUIENTE
+            btn.addEventListener('click', function() {
+                if (this.classList.contains('active')) {
+                    localStorage.setItem('v_nombre_destino', nameInput.value);
+                    
+                    const loader = document.getElementById('loader-screen');
+                    loader.style.display = 'flex';
+                    setTimeout(() => {
+                        loader.style.opacity = '1';
+                    }, 10);
+
+                    setTimeout(() => {
+                        window.location.href = 'confirmar.html';
+                    }, 1500);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

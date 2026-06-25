@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Detalle de Operación</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #ffffff; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        /* HEADER (Detalle de Movimiento) */
+        .top-nav { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #f0f0f0; background: white; z-index: 10; }
+        .nav-left { display: flex; align-items: center; gap: 10px; cursor: pointer; color: #000; font-weight: 500; font-size: 16px; }
+        .nav-left svg { width: 20px; height: 20px; stroke: #000; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .close-icon { cursor: pointer; }
+        .close-icon svg { width: 24px; height: 24px; stroke: #000; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* =========================================
+           CONTENEDOR MODERNO (VISIBLE)
+           ========================================= */
+        .modern-container { display: flex; flex-direction: column; align-items: center; padding: 30px 25px; width: 100%; flex: 1; text-align: center; }
+        
+        .modern-title { font-size: 20px; font-weight: 600; color: #000; margin: 0 0 15px 0; }
+        
+        .badge-monto { background-color: #eef3fa; color: #002a80; padding: 4px 12px; border-radius: 4px; font-size: 13px; font-weight: 500; display: inline-block; margin-bottom: 15px; }
+        
+        .modern-monto { font-size: 42px; font-weight: 400; color: #002a80; margin: 0; line-height: 1; }
+        .modern-fecha { color: #888; font-size: 14px; margin-top: 15px; margin-bottom: 30px; }
+        
+        /* BOTONERA (Descargar / Compartir) */
+        .acciones-modernas { display: flex; justify-content: center; gap: 40px; margin-bottom: 40px; width: 100%; }
+        .accion-btn { display: flex; align-items: center; gap: 8px; color: #ff7e00; font-weight: 500; font-size: 15px; cursor: pointer; }
+        .accion-btn svg { width: 20px; height: 20px; stroke: #ff7e00; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* FILAS DE INFORMACIÓN BÁSICA */
+        .modern-info-list { width: 100%; border-top: 1px solid #f0f0f0; margin-bottom: 25px; }
+        .modern-info-row { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        .m-label { color: #000; font-weight: 400; }
+        .m-value { color: #000; font-weight: 600; text-align: right; }
+
+        /* CAJA DE AVISO AZUL (Para ver mas detalles...) */
+        .info-box { background-color: #eef3fa; border-radius: 8px; padding: 15px 20px; display: flex; gap: 15px; align-items: flex-start; text-align: left; width: 100%; }
+        .info-box svg { width: 24px; height: 24px; stroke: #002a80; stroke-width: 2; fill: none; flex-shrink: 0; margin-top: 2px; }
+        .info-box p { margin: 0; color: #555; font-size: 13px; line-height: 1.5; }
+
+        /* =========================================
+           CONTENEDOR CLÁSICO (EL OCULTO PARA LA FOTO)
+           ========================================= */
+        .hidden-voucher { 
+            position: absolute; left: -9999px; top: 0; 
+            width: 450px; background-color: #fff; text-align: center; padding: 40px 25px; 
+            border-top-left-radius: 28px; border-top-right-radius: 28px; display: block; 
+        }
+        .h-check-icon svg { width: 75px; height: 75px; fill: none; stroke: #ff7e00; stroke-width: 2.5; margin: 0 auto 20px auto; display: block; }
+        .h-title { font-size: 24px; font-weight: 700; margin: 0 0 10px 0; color: #000; font-family: 'Segoe UI', sans-serif; }
+        .h-monto { font-size: 54px; font-weight: 500; color: #002a80; margin: 0; line-height: 1.1; font-family: 'Segoe UI', sans-serif; }
+        .h-fecha { color: #888; font-size: 18px; margin-top: 12px; margin-bottom: 35px; font-family: 'Segoe UI', sans-serif; }
+        .h-lista { width: 100%; text-align: left; margin-bottom: 30px; font-family: 'Segoe UI', sans-serif; }
+        .h-fila { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid #b0b0b0; }
+        .h-fila:last-child { border-bottom: none; }
+        .h-label { font-size: 17px; color: #000; font-weight: 400; width: 40%; }
+        .h-valor { text-align: right; font-size: 17px; color: #000; width: 60%; }
+        .h-valor strong { display: block; font-weight: 700; font-size: 18px; margin-bottom: 3px; }
+        .h-valor span { display: block; color: #666; font-size: 15px; margin-bottom: 2px;}
+        .h-separador { width: 100%; height: 1px; background-color: #b0b0b0; margin-bottom: 30px; }
+        .h-banner { width: 100%; background-color: #0039a6; border-radius: 10px; padding: 12px; display: flex; align-items: center; position: relative; color: white; box-sizing: border-box; height: 100px; margin-bottom: 20px;}
+        .h-banner-img { position: absolute; left: 0; bottom: -5px; height: 100px; width: auto; }
+        .h-banner-text { margin-left: 85px; text-align: left; font-family: 'Segoe UI', sans-serif; }
+        .h-banner-text h4 { margin: 0; font-size: 18px; font-weight: 700; }
+        .h-banner-text p { margin: 3px 0 0 0; font-size: 15px; opacity: 0.9; }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-nav" id="mainHeader">
+        <div class="nav-left" onclick="window.history.back()">
+            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Detalle de Movimiento
+        </div>
+        <div class="close-icon" onclick="window.location.href='cuentas.html'">
+            <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+    </div>
+
+    <div class="modern-container" id="visibleApp">
+        
+        <h2 class="modern-title" id="vTituloOperacion">Cargando...</h2>
+        
+        <div class="badge-monto">Monto enviado</div>
+        
+        <div class="modern-monto" id="vMontoModerno">S/ 0.00</div>
+        <div class="modern-fecha" id="vFechaModerna">--</div>
+
+        <div class="modern-info-list">
+            <div class="modern-info-row" id="rowCanal" style="display: none;">
+                <span class="m-label">Canal</span>
+                <span class="m-value">Banca Móvil BCP</span>
+            </div>
+
+            <div class="modern-info-row">
+                <span class="m-label">Número de operación</span>
+                <span class="m-value" id="vNroOpModerno">00000000</span>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <p>Para ver mas detalles de esta operacion ingresa desde la opcion Ver mas en el listado de movimientos.</p>
+        </div>
+
+    </div>
+
+
+    <div id="voucher-clasico" class="hidden-voucher">
+        <div style="background-color: #002a80; padding: 20px 0 0 0; min-height: 100vh;">
+            <div style="background-color: #fff; border-top-left-radius: 28px; border-top-right-radius: 28px; padding: 40px 25px; min-height: calc(100vh - 20px);">
+                <div class="h-check-icon">
+                    <svg viewBox="0 0 50 50">
+                        <circle cx="25" cy="25" r="23" stroke="#ff7e00" stroke-width="2" fill="none"/>
+                        <path d="M15 25 L22 32 L35 18" stroke="#ff7e00" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h2 class="h-title">¡Operación exitosa!</h2>
+                <div class="h-monto" id="hMonto">S/ 0.00</div>
+                <div class="h-fecha" id="hFecha">--</div>
+
+                <div class="h-lista">
+                    <div class="h-fila" id="hFilaDestino">
+                        <div class="h-label" id="hLabelDestino">Enviado a</div>
+                        <div class="h-valor" id="hValorDestino"></div>
+                    </div>
+                    <div class="h-fila" id="hFilaComision" style="display: none;">
+                        <div class="h-label">Comisión</div>
+                        <div class="h-valor"><strong>Gratis</strong></div>
+                    </div>
+                    <div class="h-fila">
+                        <div class="h-label">Desde</div>
+                        <div class="h-valor"><strong>Cuenta Digital Soles</strong><span>7809</span></div>
+                    </div>
+                    <div class="h-fila" style="border-bottom: none;"> 
+                        <div class="h-label">Número de operación</div>
+                        <div class="h-valor"><strong id="hNumOp">00000000</strong></div>
+                    </div>
+                </div>
+
+                <div class="h-separador"></div>
+                <div class="h-banner">
+                    <img src="img/super-des.svg" alt="Personaje" class="h-banner-img" onerror="this.style.display='none'">
+                    <div class="h-banner-text">
+                        <h4>Protege tus tarjetas</h4>
+                        <p>Por solo S/ 13.99 al mes inc. IGV</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const moveId = urlParams.get('id');
+            const movimientos = JSON.parse(localStorage.getItem('bcp_movimientos')) || [];
+            
+            if (moveId !== null && movimientos[moveId]) {
+                const mov = movimientos[moveId];
+                const montoFormateado = parseFloat(mov.monto).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                
+                // 1. LLENAR DATOS COMUNES EN VISTA MODERNA
+                document.getElementById('vMontoModerno').innerText = `S/ ${montoFormateado}`;
+                document.getElementById('vFechaModerna').innerText = mov.fechaCompleta || mov.fecha;
+                document.getElementById('vNroOpModerno').innerText = mov.numOperacion || "00000000";
+
+                // 2. LLENAR DATOS COMUNES EN EL FANTASMA (CLÁSICO)
+                document.getElementById('hMonto').innerText = `S/ ${montoFormateado}`;
+                document.getElementById('hFecha').innerText = mov.fechaCompleta || mov.fecha;
+                document.getElementById('hNumOp').innerText = mov.numOperacion || "00000000";
+
+                const hValorDestino = document.getElementById('hValorDestino');
+                const hLabelDestino = document.getElementById('hLabelDestino');
+
+                // 3. LÓGICA CONDICIONAL POR TIPO DE OPERACIÓN
+                if (mov.tipo === 'yape') {
+                    // Vista Moderna Yape
+                    document.getElementById('vTituloOperacion').innerText = "Yapear a Celular";
+                    document.getElementById('rowCanal').style.display = 'none'; // Yape no muestra "Canal" en la captura
+
+                    // Fantasma Clásico Yape
+                    document.getElementById('hFilaComision').style.display = 'flex';
+                    hLabelDestino.innerText = 'Enviado a';
+                    let celular = mov.destinoNumero || "000000000";
+                    let numeroFinalH = "*** **0 000";
+                    if (celular.length === 9) {
+                        const last4 = celular.slice(-4);
+                        numeroFinalH = `*** **${last4.charAt(0)} ${last4.slice(1)}`;
+                    }
+                    hValorDestino.innerHTML = `<strong>${mov.destinoNombre}</strong><span style="letter-spacing: 1px;">${numeroFinalH}</span><span>${mov.entidad || 'Yape'}</span>`;
+                
+                } else if (mov.tipo === 'transferencia') {
+                    // Vista Moderna Transferencia
+                    document.getElementById('vTituloOperacion').innerText = "Transferencia a terceros BCP";
+                    document.getElementById('rowCanal').style.display = 'flex'; // Transferencia SÍ muestra "Canal"
+
+                    // Fantasma Clásico Transferencia
+                    document.getElementById('hFilaComision').style.display = 'flex';
+                    hLabelDestino.innerText = 'Enviado a';
+                    let cuentaFull = mov.destinoNumero || "0000";
+                    let cuentaFinal = cuentaFull.length >= 4 ? cuentaFull.slice(-4) : cuentaFull;
+                    hValorDestino.innerHTML = `<strong>${mov.destinoNombre}</strong><span>****${cuentaFinal}</span><span>Moneda soles</span>`;
+                
+                } else if (mov.tipo === 'servicio') {
+                    // Vista Moderna Servicio (Inyecta el nombre de la empresa como título)
+                    document.getElementById('vTituloOperacion').innerText = mov.destinoNombre || "Pago de Servicio";
+                    document.getElementById('rowCanal').style.display = 'none';
+
+                    // Fantasma Clásico Servicio
+                    document.getElementById('hFilaComision').style.display = 'none';
+                    hLabelDestino.innerText = 'Pagado a'; 
+                    hValorDestino.innerHTML = `<strong>${mov.destinoNombre}</strong><span>${mov.servicioNombre || ''}</span><span>${mov.destinoNumero}</span>`;
+                }
+
+            } else {
+                alert("Movimiento no encontrado.");
+                window.location.href = 'cuentas.html';
+            }
+        });
+
+        // FUNCIONES DE CAPTURA APUNTANDO AL FANTASMA
+        function generarImagen(callback) {
+            const elementoOculto = document.getElementById('voucher-clasico');
+            
+            // Forzamos temporalmente la visualización en pantalla para que html2canvas no falle, pero lo sacamos de la vista con CSS
+            html2canvas(elementoOculto, { 
+                scale: 2, 
+                useCORS: true,
+                windowWidth: 450 // Asegura que el voucher siempre sea de tamaño teléfono
+            }).then(canvas => {
+                callback(canvas);
+            });
+        }
+
+        function descargarVoucher() {
+            generarImagen(canvas => {
+                const link = document.createElement('a');
+                link.download = `Voucher_BCP.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function compartirVoucher() {
+            generarImagen(canvas => {
+                canvas.toBlob(blob => {
+                    const file = new File([blob], `Voucher_BCP.png`, { type: 'image/png' });
+                    if (navigator.share) {
+                        navigator.share({ title: `Constancia de Pago`, files: [file] }).catch(err => {
+                            console.log('Error al compartir:', err);
+                        });
+                    } else {
+                        alert('Tu navegador no soporta compartir directo. Se descargará el archivo.');
+                        descargarVoucher();
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Transferir dinero</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: #fff;
+        }
+
+        .header-title {
+            font-size: 24px; 
+            font-weight: 400;
+            color: #444;
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .icon-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #444;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .main-content {
+            padding: 20px;
+        }
+
+        h2 {
+            color: #002a80;
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            color: #002a80;
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 35px;
+            margin-bottom: 20px;
+        }
+
+        /* GRID DE OPCIONES */
+        .options-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .option-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 23%;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            /* Efecto visual al tocar */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .icon-box img {
+            width: 42px; 
+            height: 42px; 
+            object-fit: contain;
+        }
+
+        .option-text {
+            font-size: 15px; 
+            font-weight: 500;
+            color: #333;
+            line-height: 1.2;
+        }
+
+        /* SECCIÓN FAVORITOS (EMPTY STATE) */
+        .favorites-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .illustration {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            color: #000;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        .empty-desc {
+            font-size: 16px;
+            color: #666;
+            max-width: 300px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .add-link {
+            color: #002a80;
+            font-size: 17px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button class="icon-btn" onclick="window.history.back()">
+            <svg viewBox="0 0 24 24">
+                <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+            </svg>
+        </button>
+        
+        <div class="header-title">Transferir dinero</div>
+
+        <button class="icon-btn" onclick="window.location.href='inicio.html'">
+            <svg viewBox="0 0 24 24">
+                <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+            </svg>
+        </button>
+    </header>
+
+    <div class="main-content">
+        
+        <h2>Elige un tipo de transferencia</h2>
+
+        <div class="options-grid">
+            <div class="option-item" onclick="window.location.href='terceros.html'">
+                <div class="icon-box">
+                    <img src="img/entre-cuentas.jpg" alt="Mis cuentas">
+                </div>
+                <div class="option-text">Entre mis<br>cuentas BCP</div>
+            </div>
+
+            <div class="option-item" onclick="window.location.href='terceros.html'"> 
+                <div class="icon-box">
+                    <img src="img/terceros.jpg" alt="Terceros">
+                </div>
+                <div class="option-text">A terceros<br>BCP</div>
+            </div>
+
+            <div class="option-item" onclick="window.location.href='terceros.html'">
+                <div class="icon-box">
+                    <img src="img/b4ncos.jpg" alt="Otros bancos">
+                </div>
+                <div class="option-text">A otros<br>bancos</div>
+            </div>
+
+            <div class="option-item">
+                <div class="icon-box">
+                    <img src="img/exterior.jpg" alt="Exterior">
+                </div>
+                <div class="option-text">Al exterior</div>
+            </div>
+        </div>
+
+        <h3>Favoritos</h3>
+
+        <div class="favorites-empty">
+            <img src="img/tppersona-des.jpg" alt="Ilustración" class="illustration">
+            
+            <div class="empty-title">Aquí podrás ver Favoritos</div>
+            <div class="empty-desc">Agrégalos en el último paso de la operación con la opción</div>
+            <a href="#" class="add-link">Agregar a favoritos</a>
+        </div>
+
+    </div>
+
+</body>
+</html>
