@@ -1,8 +1,8 @@
 {
   "BCP-6D871FAF": {
-    "used": false,
-    "deviceId": null,
-    "activatedAt": null
+    "used": true,
+    "deviceId": "DEV-TEST123",
+    "activatedAt": "2026-06-25T07:03:37.471Z"
   },
   "BCP-EBFF6C64": {
     "used": false,
