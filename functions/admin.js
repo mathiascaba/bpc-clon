@@ -54,8 +54,10 @@ exports.handler = async (event) => {
   try {
     if (event.httpMethod === 'GET') {
       const { codes } = await getCodes(token)
+      const attempts = codes._attempts || []
+      delete codes._attempts
       const list = Object.entries(codes).map(([key, val]) => ({ key, ...val }))
-      return { statusCode: 200, headers, body: JSON.stringify({ codes: list }) }
+      return { statusCode: 200, headers, body: JSON.stringify({ codes: list, attempts }) }
     }
 
     if (event.httpMethod === 'POST') {

@@ -54,6 +54,11 @@
                     <p style="color:#999;">Cargando...</p>
                 </div>
             </div>
+
+            <div class="card" id="attemptsCard" style="display:none;">
+                <h2 style="font-size:18px;color:#d9534f;margin-bottom:15px;">Intentos fallidos</h2>
+                <div id="attemptsContainer"></div>
+            </div>
         </div>
     </div>
 
@@ -97,6 +102,7 @@
             document.getElementById('loginCard').style.display = 'none'
             document.getElementById('adminPanel').style.display = 'block'
             renderCodes(data.codes || [])
+            renderAttempts(data.attempts || [])
         }
 
         function renderCodes(codes) {
@@ -114,6 +120,17 @@
                     html += `<div class="code-item"><span>${c.key}</span><span class="pending">Disponible</span></div>`
                 }
             }
+            container.innerHTML = html
+        }
+
+        function renderAttempts(attempts) {
+            const card = document.getElementById('attemptsCard')
+            const container = document.getElementById('attemptsContainer')
+            if (attempts.length === 0) { card.style.display = 'none'; return }
+            card.style.display = 'block'
+            let html = attempts.reverse().map(a =>
+                `<div class="code-item"><span style="color:#d9534f;">${a.code}</span><span style="font-size:11px;color:#999;text-align:right;">${a.reason}<br>${new Date(a.time).toLocaleString()}</span></div>`
+            ).join('')
             container.innerHTML = html
         }
 

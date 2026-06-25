@@ -50,10 +50,21 @@ exports.handler = async (event) => {
     }
 
     const { codes, sha } = await getCodes(token)
-    const entry = codes[code.toUpperCase()]
+    const normalizedCode = code.toUpperCase()
+    const entry = codes[normalizedCode]
 
-    if (!entry) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid code' }) }
-    if (entry.used) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Code already used' }) }
+    if (!entry) {
+      if (!codes._attempts) codes._attempts = []
+      codes._attempts.push({ code: normalizedCode, deviceId, reason: 'Invalid code', time: new Date().toISOString() })
+      await saveCodes(codes, sha, token)
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid code' }) }
+    }
+    if (entry.used) {
+      if (!codes._attempts) codes._attempts = []
+      codes._attempts.push({ code: normalizedCode, deviceId, reason: 'Code already used', time: new Date().toISOString() })
+      await saveCodes(codes, sha, token)
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Code already used' }) }
+    }
 
     entry.used = true
     entry.deviceId = deviceId
