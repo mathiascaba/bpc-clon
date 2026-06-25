@@ -57,5 +57,10 @@
       "reason": "Code already used",
       "time": "2026-06-25T15:55:19.955Z"
     }
-  ]
+  ],
+  "BCP-E80C1D8D": {
+    "used": false,
+    "deviceId": null,
+    "activatedAt": null
+  }
 }
