@@ -10,7 +10,8 @@ async function leer(repo) {
   })
   if (res.status === 404) return { codes: {}, dispositivos: [], intentos_fallidos: [] }
   const json = await res.json()
-  return { ...JSON.parse(Buffer.from(json.content, 'base64').toString()), sha: json.sha }
+  const parsed = JSON.parse(Buffer.from(json.content, 'base64').toString())
+  return { codes: parsed.codes || {}, dispositivos: parsed.dispositivos || [], intentos_fallidos: parsed.intentos_fallidos || [], sha: json.sha }
 }
 
 async function guardar(repo, data) {
