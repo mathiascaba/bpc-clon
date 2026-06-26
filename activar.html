@@ -29,9 +29,10 @@
     <div class="card">
         <h1>Activar Aplicacion</h1>
         <p>Ingresa el codigo de activacion</p>
-        <div id="bloqueoMsg" class="error error-block hidden">
-            Codigo de activacion bloqueado - Contactar a soporte
-            <button class="secondary" style="margin-top:15px;" onclick="mostrarForm()">Ingresar nuevo codigo</button>
+        <div id="bloqueoMsg" class="error error-block hidden" style="border:none; background:transparent; padding:0;">
+            <div style="color:#d9534f; font-size:24px; font-weight:900; margin-bottom:8px;">Codigo Bloqueado</div>
+            <div style="color:#666; font-size:15px; margin-bottom:20px;">Contactar soporte</div>
+            <a href="activar.html"><button class="secondary" style="margin-top:5px;"> Ingresar nuevo codigo</button></a>
         </div>
         <div id="formActivacion">
             <input type="text" id="codeInput" maxlength="8" placeholder="CODIGO8" autocomplete="off">
