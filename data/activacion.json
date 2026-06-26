@@ -7,6 +7,14 @@
       "dispositivo": "DEV-2d5026bd-90a6-44fa-87d8-0b7a5550d17f",
       "fecha_uso": "2026-06-26T16:00:32.342Z",
       "nombre": "Android"
+    },
+    "IG5EUR80": {
+      "used": false,
+      "blocked": false,
+      "creado": "2026-06-26T16:24:49.660Z",
+      "dispositivo": null,
+      "fecha_uso": null,
+      "nombre": null
     }
   },
   "dispositivos": [
